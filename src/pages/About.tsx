@@ -5,15 +5,15 @@ import { Zap, Code2, Heart, Github, Shield, Globe } from "lucide-react";
 import { fadeUp, stagger, scaleIn } from "@/lib/motion";
 
 const FEATURES = [
-  { icon: "🎬", title: "15 Professional Tools", desc: "Pro Editor, Timeline, Overlay Studio, Clean Video, Convert, Compress, Resize, GIF Maker, Audio Studio, Merge, Subtitle, Thumbnail, Auto Optimize, AI Captions & Silence Remover." },
-  { icon: "🔒", title: "100% Private", desc: "Nothing leaves your device. All processing happens in your browser using WebAssembly — no servers, no uploads, ever." },
-  { icon: "⚡", title: "FFmpeg Powered", desc: "Built on FFmpeg compiled to WebAssembly — the same engine used by professionals, running entirely client-side with a singleton loader." },
-  { icon: "🆓", title: "Completely Free", desc: "No accounts, no subscriptions, no limits. allConvert is and always will be free." },
-  { icon: "📱", title: "Works Everywhere", desc: "Fully responsive — desktop, tablet, and mobile. Dark and light mode. Works in any modern browser." },
-  { icon: "🧠", title: "Smart Workspace", desc: "Workflow templates, session memory, live activity feed, AI-style suggestions, post-conversion flow engine and trending presets." },
+  { icon: "🎬", title: "15 Ferramentas Profissionais", desc: "Editor Avançado, Linha do Tempo, Sobreposição, Remover Marca, Converter, Compactar, Redimensionar, Criar GIF, Áudio, Juntar Vídeos, Legenda, Extrair Frame, Otimização Automática, Transcrição e Remover Silêncio." },
+  { icon: "🔒", title: "100% Privado", desc: "Nada sai do seu computador. Todo o processamento acontece no seu navegador via WebAssembly — sem servidores, sem upload, nunca." },
+  { icon: "⚡", title: "Motorizado por FFmpeg", desc: "Construído sobre o FFmpeg compilado para WebAssembly — o mesmo motor usado por profissionais, rodando inteiramente no seu dispositivo." },
+  { icon: "🆓", title: "Totalmente Gratuito", desc: "Sem cadastro, sem assinatura, sem limites. O allConvert é e sempre será gratuito." },
+  { icon: "📱", title: "Funciona em Qualquer Lugar", desc: "Totalmente responsivo — computador, tablet e celular. Funciona em qualquer navegador moderno." },
+  { icon: "🧠", title: "Workspace Inteligente", desc: "Modelos de fluxo de trabalho, memória de sessão, sugestões automáticas e histórico de exportações da sessão atual." },
 ];
 
-const STACK = ["React 18", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "FFmpeg WASM", "Framer Motion", "GitHub Pages", "Session Memory", "Workflow Engine"];
+const STACK = ["React 18", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "FFmpeg WASM", "Framer Motion", "GitHub Pages", "Memória de Sessão", "Fluxos de Trabalho"];
 
 const About = () => (
   <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#0a0b14] transition-colors relative overflow-x-hidden">
@@ -36,25 +36,25 @@ const About = () => (
         <motion.section variants={stagger} initial="hidden" animate="show" className="text-center space-y-4 pt-2">
           <motion.div variants={fadeUp} className="flex justify-center">
             <span className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-300 shadow-sm shadow-blue-500/10">
-              <Zap className="w-4 h-4" /> About allConvert
+              <Zap className="w-4 h-4" /> Sobre o allConvert
             </span>
           </motion.div>
           <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white leading-tight tracking-tight">
-            Your browser-based<br />
+            Sua estação de edição<br />
             <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-500 bg-clip-text text-transparent text-glow">
-              video workspace
+              de evidências em vídeo
             </span>
           </motion.h1>
           <motion.p variants={fadeUp} className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2">
-            allConvert is a free, browser-based video workspace. No file uploads, no accounts, no tracking — 13 powerful tools that run entirely on your device.
+            O allConvert é gratuito e roda inteiramente no navegador. Sem upload de arquivos, sem cadastro, sem rastreamento — 15 ferramentas para preparar gravações de CFTV como evidência, direto no seu dispositivo.
           </motion.p>
 
           {/* Quick stats */}
           <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-3 pt-1">
             {[
-              { icon: <Shield className="w-3.5 h-3.5" />, text: "No uploads" },
+              { icon: <Shield className="w-3.5 h-3.5" />, text: "Sem upload" },
               { icon: <Zap className="w-3.5 h-3.5" />, text: "FFmpeg WASM" },
-              { icon: <Globe className="w-3.5 h-3.5" />, text: "Any browser" },
+              { icon: <Globe className="w-3.5 h-3.5" />, text: "Qualquer navegador" },
             ].map(f => (
               <span key={f.text} className="inline-flex items-center gap-1.5 bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-3 py-1.5 rounded-full shadow-sm">
                 <span className="text-blue-500">{f.icon}</span>{f.text}
@@ -78,16 +78,30 @@ const About = () => (
           ))}
         </div>
 
+        {/* Por que rodar localmente importa para evidências */}
+        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          transition={{ duration: 0.35 }}
+          className="glass-card p-5 sm:p-6 space-y-3 border-blue-200 dark:border-blue-800/60">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Shield className="w-5 h-5 text-blue-600" /> Por que isso importa para evidências
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+            Como o processamento acontece localmente, a gravação original não passa por nenhum servidor de terceiros durante a conversão, compactação ou corte —
+            reduzindo pontos de exposição do material. Ainda assim, mantenha sempre uma cópia intacta do arquivo original antes de qualquer edição,
+            e documente as etapas realizadas para preservar a cadeia de custódia conforme exigido no seu processo ou perícia.
+          </p>
+        </motion.div>
+
         {/* How it works */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           transition={{ duration: 0.4 }}
           className="glass-card p-5 sm:p-8 space-y-5 sm:space-y-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white text-center">How it works</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white text-center">Como funciona</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
             {[
-              { step: "1", emoji: "📂", title: "Upload", desc: "Drag & drop or click to select your video. It stays on your device." },
-              { step: "2", emoji: "⚙️", title: "Process", desc: "Choose your tool and settings. FFmpeg WASM processes everything in your browser." },
-              { step: "3", emoji: "⬇️", title: "Download", desc: "Your processed file is ready instantly. Download it directly — no waiting." },
+              { step: "1", emoji: "📂", title: "Enviar", desc: "Arraste ou clique para selecionar a gravação. Ela permanece no seu computador." },
+              { step: "2", emoji: "⚙️", title: "Processar", desc: "Escolha a ferramenta e as configurações. O FFmpeg WASM processa tudo no navegador." },
+              { step: "3", emoji: "⬇️", title: "Baixar", desc: "O arquivo processado fica pronto na hora. Baixe direto — sem espera." },
             ].map((s, i) => (
               <motion.div key={s.step} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
@@ -109,7 +123,7 @@ const About = () => (
           transition={{ duration: 0.35 }}
           className="glass-card p-5 sm:p-6 space-y-4">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <Code2 className="w-5 h-5 text-blue-600" /> Built with
+            <Code2 className="w-5 h-5 text-blue-600" /> Construído com
           </h2>
           <div className="flex flex-wrap gap-2">
             {STACK.map((t, i) => (
@@ -123,7 +137,7 @@ const About = () => (
           </div>
         </motion.div>
 
-        {/* Author CTA */}
+        {/* CTA */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           transition={{ duration: 0.4 }}
           className="relative overflow-hidden rounded-2xl p-6 sm:p-8 text-white text-center space-y-3"
@@ -134,14 +148,14 @@ const About = () => (
             className="relative z-10">
             <Heart className="w-8 h-8 mx-auto fill-white" />
           </motion.div>
-          <h2 className="relative z-10 text-xl sm:text-2xl font-bold">Made by MultiMian</h2>
+          <h2 className="relative z-10 text-xl sm:text-2xl font-bold">Código aberto</h2>
           <p className="relative z-10 text-blue-100 max-w-md mx-auto text-sm sm:text-base">
-            Open source, built with passion. allConvert is a personal project focused on privacy-first tooling for everyone.
+            O allConvert é um projeto de código aberto focado em ferramentas que preservam a privacidade de quem lida com evidências em vídeo.
           </p>
-          <motion.a href="https://github.com/Mianhassam96" target="_blank" rel="noreferrer"
+          <motion.a href="https://github.com/alltok/allConvert" target="_blank" rel="noreferrer"
             whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
             className="relative z-10 inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-5 py-2.5 rounded-xl font-medium transition-colors mt-1">
-            <Github className="w-4 h-4" /> View on GitHub
+            <Github className="w-4 h-4" /> Ver no GitHub
           </motion.a>
         </motion.div>
 

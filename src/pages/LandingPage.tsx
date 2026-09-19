@@ -1,7 +1,7 @@
 /**
- * Reusable SEO landing page — used for /tiktok-video-compressor,
- * /youtube-video-converter, /video-to-mp3, /subtitle-burner etc.
- * Each page has a focused keyword, CTA, and opens the correct tool+preset.
+ * Página de destino reutilizável para SEO — usada em /converter-dvr-para-mp4,
+ * /compactar-video-processo, /extrair-audio-video, /legendar-video etc.
+ * Cada página tem uma palavra-chave focada, CTA, e abre a ferramenta+preset corretos.
  */
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -74,9 +74,9 @@ const LandingPage = ({ config }: LandingPageProps) => {
 
             <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-2">
               {[
-                { icon: <Lock className="w-3.5 h-3.5" />, text: "No uploads" },
-                { icon: <Zap className="w-3.5 h-3.5" />, text: "Instant processing" },
-                { icon: <Shield className="w-3.5 h-3.5" />, text: "100% private" },
+                { icon: <Lock className="w-3.5 h-3.5" />, text: "Sem upload" },
+                { icon: <Zap className="w-3.5 h-3.5" />, text: "Processamento instantâneo" },
+                { icon: <Shield className="w-3.5 h-3.5" />, text: "100% privado" },
               ].map(f => (
                 <span key={f.text} className="inline-flex items-center gap-1.5 bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-3 py-1.5 rounded-full shadow-sm">
                   <span className="text-blue-500">{f.icon}</span>{f.text}
@@ -86,7 +86,7 @@ const LandingPage = ({ config }: LandingPageProps) => {
           </motion.section>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <DropZone variant="hero" onFile={handleFile} label={`Drop your video to ${config.title.toLowerCase()}`} />
+            <DropZone variant="hero" onFile={handleFile} label={`Solte o vídeo para ${config.title.toLowerCase()}`} />
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}

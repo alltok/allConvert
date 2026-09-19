@@ -29,7 +29,7 @@ const RATIO_PRESETS: { value: RatioPreset; label: string; icon: string }[] = [
   { value: "4:3",   label: "4:3",   icon: "📺" },
   { value: "3:4",   label: "3:4",   icon: "🖼" },
   { value: "21:9",  label: "21:9",  icon: "🎬" },
-  { value: "custom",label: "Custom",icon: "✏️" },
+  { value: "custom",label: "Personalizado",icon: "✏️" },
 ];
 
 const RES_PRESETS: { value: ResPreset; label: string }[] = [
@@ -38,7 +38,7 @@ const RES_PRESETS: { value: ResPreset; label: string }[] = [
   { value: "1280x720",  label: "720p (1280×720)" },
   { value: "854x480",   label: "480p (854×480)" },
   { value: "640x360",   label: "360p (640×360)" },
-  { value: "custom",    label: "Custom" },
+  { value: "custom",    label: "Personalizado" },
 ];
 
 const ResizeTool = () => {
@@ -107,11 +107,11 @@ const ResizeTool = () => {
   const handleProcess = async () => {
     if (!video) return;
     const dims = getTargetDimensions();
-    if (!dims) { toast({ variant: "destructive", title: "Set target dimensions" }); return; }
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!dims) { toast({ variant: "destructive", title: "Defina as dimensões desejadas" }); return; }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "resize", toolLabel: "Resize", icon: "📐", fileName: video.name });
+    const jobId = startJob({ toolId: "resize", toolLabel: "Redimensionar", icon: "📐", fileName: video.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -122,7 +122,7 @@ const ResizeTool = () => {
 
       let vf = "";
       const out = getOutputPreview();
-      if (!out) throw new Error("Invalid dimensions");
+      if (!out) throw new Error("Dimensões inválidas");
 
       if (letterbox) {
         // Scale to fit, pad with black bars
@@ -139,16 +139,16 @@ const ResizeTool = () => {
       const blob = await readOutputBlob(ff, "resized.mp4", "video/mp4");
       const url = URL.createObjectURL(blob);
       const base = video.name.replace(/\.[^.]+$/, "");
-      const filename = `${base}-resized.mp4`;
+      const filename = `${base}-redimensionado.mp4`;
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr });
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "resize", "Resize");
-      toast({ title: "✓ Resized!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "resize", "Redimensionar");
+      toast({ title: "✓ Redimensionado!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -159,10 +159,10 @@ const ResizeTool = () => {
   return (
     <div className="space-y-4">
       {!video ? (
-        <DropZone onFile={handleVideo} label="Drop video to resize" />
+        <DropZone onFile={handleVideo} label="Solte o vídeo para redimensionar" />
       ) : (
         <VideoPreview ref={videoRef} file={video} previewUrl={previewUrl} onReset={reset} warning={warning}
-          badge={vidW > 0 ? `Source: ${vidW}×${vidH}` : undefined}
+          badge={vidW > 0 ? `Origem: ${vidW}×${vidH}` : undefined}
           onLoadedMetadata={() => {
             const v = videoRef.current;
             if (v) { setVidW(v.videoWidth); setVidH(v.videoHeight); }
@@ -173,7 +173,7 @@ const ResizeTool = () => {
         <>
           {/* Aspect ratio */}
           <div className="space-y-2">
-            <Label className="text-xs text-gray-500">Aspect Ratio</Label>
+            <Label className="text-xs text-gray-500">Proporção</Label>
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
               {RATIO_PRESETS.map(p => (
                 <motion.button key={p.value} onClick={() => setRatio(p.value)}
@@ -193,7 +193,7 @@ const ResizeTool = () => {
 
           {/* Resolution */}
           <div className="space-y-2">
-            <Label className="text-xs text-gray-500">Target Resolution</Label>
+            <Label className="text-xs text-gray-500">Resolução Alvo</Label>
             <Select value={resPreset} onValueChange={v => setResPreset(v as ResPreset)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -205,12 +205,12 @@ const ResizeTool = () => {
           {resPreset === "custom" && (
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs text-gray-500">Width (px)</Label>
-                <Input type="number" min="1" value={customW} onChange={e => setCustomW(e.target.value)} placeholder="e.g. 1280" />
+                <Label className="text-xs text-gray-500">Largura (px)</Label>
+                <Input type="number" min="1" value={customW} onChange={e => setCustomW(e.target.value)} placeholder="ex.: 1280" />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-gray-500">Height (px)</Label>
-                <Input type="number" min="1" value={customH} onChange={e => setCustomH(e.target.value)} placeholder="e.g. 720" />
+                <Label className="text-xs text-gray-500">Altura (px)</Label>
+                <Input type="number" min="1" value={customH} onChange={e => setCustomH(e.target.value)} placeholder="ex.: 720" />
               </div>
             </div>
           )}
@@ -219,24 +219,24 @@ const ResizeTool = () => {
           <div className="flex items-center gap-3 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3">
             <Switch id="letterbox" checked={letterbox} onCheckedChange={setLetterbox} />
             <div>
-              <Label htmlFor="letterbox" className="text-sm cursor-pointer">Add letterbox / pillarbox</Label>
-              <p className="text-xs text-gray-400">Pad with black bars instead of cropping</p>
+              <Label htmlFor="letterbox" className="text-sm cursor-pointer">Adicionar tarjas pretas (letterbox)</Label>
+              <p className="text-xs text-gray-400">Preenche com tarjas pretas em vez de cortar a imagem</p>
             </div>
           </div>
 
           {/* Output preview */}
           {preview && (
             <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl px-4 py-3 text-xs text-blue-700 dark:text-blue-300">
-              Output: {preview.w}×{preview.h}px
-              {vidW > 0 && ` (from ${vidW}×${vidH})`}
+              Saída: {preview.w}×{preview.h}px
+              {vidW > 0 && ` (de ${vidW}×${vidH})`}
             </div>
           )}
 
           <AnimatedButton onClick={handleProcess} loading={processing} className="w-full" size="lg">
-            {processing ? "Resizing…" : "Resize Video"}
+            {processing ? "Redimensionando…" : "Redimensionar Vídeo"}
           </AnimatedButton>
 
-          {processing && <AnimatedProgress value={progress} label="Resizing…" done={done} />}
+          {processing && <AnimatedProgress value={progress} label="Redimensionando…" done={done} />}
           {error && <ErrorRecovery error={error} onRetry={() => setError(null)} />}
         </>
       )}

@@ -10,7 +10,7 @@ import DropZone from "@/components/DropZone";
 import ResultCard from "@/components/ResultCard";
 import AnimatedButton from "@/components/ui/AnimatedButton";
 import AnimatedProgress from "@/components/ui/AnimatedProgress";
-import { Plus, Trash2, Info } from "lucide-react";
+import { Plus, Trash2, Info, ShieldAlert } from "lucide-react";
 import VideoPreview from "@/components/VideoPreview";
 import ErrorRecovery from "@/components/ErrorRecovery";
 import { motion } from "framer-motion";
@@ -72,10 +72,10 @@ const CleanVideoTool = () => {
 
   const handleProcess = async () => {
     if (!video || !regions.length) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false); setError(null);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "clean", toolLabel: "Clean Video", icon: "🧹", fileName: video.name });
+    const jobId = startJob({ toolId: "clean", toolLabel: "Remover Marca", icon: "🧹", fileName: video.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -108,16 +108,16 @@ const CleanVideoTool = () => {
       const blob = await readOutputBlob(ff, "cleaned.mp4", "video/mp4");
       const url = URL.createObjectURL(blob);
       const base = video.name.replace(/\.[^.]+$/, "");
-      const filename = `${base}-cleaned.mp4`;
+      const filename = `${base}-copia-editada.mp4`;
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr });
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "clean", "Clean Video");
-      toast({ title: "✓ Cleaned!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "clean", "Remover Marca");
+      toast({ title: "✓ Concluído!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -126,7 +126,7 @@ const CleanVideoTool = () => {
   return (
     <div className="space-y-4">
       {!video ? (
-        <DropZone onFile={handleVideo} label="Drop video to remove logo/text" />
+        <DropZone onFile={handleVideo} label="Solte o vídeo para remover marca/texto" />
       ) : (
         <VideoPreview
           ref={videoRef}
@@ -143,11 +143,20 @@ const CleanVideoTool = () => {
 
       {video && !result && (
         <>
+          {/* Evidence integrity warning */}
+          <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 rounded-xl px-4 py-3">
+            <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+              <strong>Use com cuidado.</strong> Esta ferramenta altera o conteúdo visual do vídeo. Nunca a aplique sobre o arquivo original de evidência —
+              trabalhe sempre em uma cópia e preserve o arquivo-fonte intacto para preservar a cadeia de custódia.
+            </p>
+          </div>
+
           {/* Mode selector */}
           <div className="grid grid-cols-2 gap-3">
             {([
-              { id: "delogo" as RemoveMode, label: "Smart Remove", emoji: "🧹", desc: "FFmpeg delogo — fills area intelligently" },
-              { id: "blur"   as RemoveMode, label: "Blur Region",  emoji: "🌫", desc: "Gaussian blur over selected area" },
+              { id: "delogo" as RemoveMode, label: "Remoção Inteligente", emoji: "🧹", desc: "FFmpeg delogo — preenche a área de forma inteligente" },
+              { id: "blur"   as RemoveMode, label: "Desfocar Região",     emoji: "🌫", desc: "Desfoque gaussiano sobre a área selecionada" },
             ]).map(opt => (
               <motion.button key={opt.id} onClick={() => setMode(opt.id)}
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
@@ -166,11 +175,11 @@ const CleanVideoTool = () => {
 
           {mode === "blur" && (
             <div className="space-y-1.5">
-              <Label className="text-xs text-gray-500">Blur strength: {blurStrength}</Label>
+              <Label className="text-xs text-gray-500">Intensidade do desfoque: {blurStrength}</Label>
               <Slider min={3} max={30} step={1} value={[blurStrength]} onValueChange={([v]) => setBlurStrength(v)} />
               {regions.length > 1 && (
                 <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
-                  ⚠️ Blur mode supports one region at a time. Multiple regions will use Smart Remove instead.
+                  ⚠️ O modo de desfoque suporta uma região por vez. Múltiplas regiões usarão a Remoção Inteligente.
                 </p>
               )}
             </div>
@@ -179,21 +188,21 @@ const CleanVideoTool = () => {
           {/* Regions */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-gray-500 uppercase tracking-wide">Regions ({regions.length})</Label>
+              <Label className="text-xs text-gray-500 uppercase tracking-wide">Regiões ({regions.length})</Label>
               <AnimatedButton size="xs" variant="outline" onClick={addRegion}>
-                <Plus className="w-3 h-3" /> Add region
+                <Plus className="w-3 h-3" /> Adicionar região
               </AnimatedButton>
             </div>
 
             <div className="flex items-start gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2">
               <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              Enter the X, Y position and W, H size of the area to remove. Use your video dimensions ({vidW || "?"}×{vidH || "?"}) as reference.
+              Informe a posição X, Y e o tamanho W, H da área a remover. Use as dimensões do vídeo ({vidW || "?"}×{vidH || "?"}) como referência.
             </div>
 
             {regions.map((r, i) => (
               <div key={r.id} className="border border-gray-200 dark:border-gray-700 rounded-xl p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">Region {i + 1}</span>
+                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">Região {i + 1}</span>
                   {regions.length > 1 && (
                     <button onClick={() => removeRegion(r.id)} className="text-red-400 hover:text-red-600 transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
@@ -214,10 +223,10 @@ const CleanVideoTool = () => {
           </div>
 
           <AnimatedButton onClick={handleProcess} loading={processing} className="w-full" size="lg">
-            {processing ? "Cleaning…" : "Clean Video"}
+            {processing ? "Processando…" : "Gerar Cópia Editada"}
           </AnimatedButton>
 
-          {processing && <AnimatedProgress value={progress} label="Removing logo/text…" done={done} />}
+          {processing && <AnimatedProgress value={progress} label="Removendo marca/texto…" done={done} />}
           {error && <ErrorRecovery error={error} onRetry={() => setError(null)} />}
         </>
       )}

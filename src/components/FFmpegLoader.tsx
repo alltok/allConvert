@@ -42,10 +42,10 @@ const FFmpegLoader = () => {
               </div>
               <div>
                 <p className="text-xs font-semibold text-gray-900 dark:text-white leading-tight">
-                  Loading FFmpeg WebAssembly…
+                  Carregando o motor de vídeo (FFmpeg)…
                 </p>
                 <p className="text-[10px] text-gray-400 dark:text-gray-500">
-                  First run only — {loadProgress}% complete
+                  Só na primeira vez — {loadProgress}% concluído
                 </p>
               </div>
               <span className="text-xs font-bold text-blue-600 dark:text-blue-400 tabular-nums shrink-0">

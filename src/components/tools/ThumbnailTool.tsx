@@ -6,7 +6,8 @@ import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { useFFmpeg } from "@/hooks/use-ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
-import { readOutputBlob, validateVideoFile } from "@/lib/ffmpeg-run";
+import { formatBytes, readOutputBlob, validateVideoFile } from "@/lib/ffmpeg-run";
+import { FONT_FILE } from "@/lib/ffmpeg-pipeline";
 import DropZone from "@/components/DropZone";
 import VideoPreview from "@/components/VideoPreview";
 import AnimatedButton from "@/components/ui/AnimatedButton";
@@ -26,7 +27,7 @@ const ThumbnailTool = () => {
   const [timestamp, setTimestamp] = useState(0);
   const [exportSize, setExportSize] = useState<ExportSize>("1280x720");
   const [addText, setAddText] = useState(false);
-  const [text, setText] = useState("My Video Title");
+  const [text, setText] = useState("Câmera 01");
   const [textSize, setTextSize] = useState(48);
   const [textColor, setTextColor] = useState("#ffffff");
   const [textPos, setTextPos] = useState<"top" | "bottom" | "center">("bottom");
@@ -60,10 +61,10 @@ const ThumbnailTool = () => {
 
   const handleExtract = async () => {
     if (!video) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(10); setThumbnail(null); setDone(false);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "thumbnail", toolLabel: "Thumbnail", icon: "📸", fileName: video.name });
+    const jobId = startJob({ toolId: "thumbnail", toolLabel: "Extrair Frame", icon: "📸", fileName: video.name });
     try {
       const vExt = video.name.split(".").pop();
       await ff.writeFile(`input.${vExt}`, await fetchFile(video));
@@ -81,7 +82,7 @@ const ThumbnailTool = () => {
         const hex = textColor.replace("#", "");
         const y = textPos === "top" ? "30" : textPos === "bottom" ? "h-th-30" : "(h-th)/2";
         const escaped = text.replace(/'/g, "\\'").replace(/:/g, "\\:");
-        const drawtextFilter = `drawtext=text='${escaped}':fontsize=${textSize}:fontcolor=0x${hex}:x=(w-tw)/2:y=${y}:box=1:boxcolor=black@0.5:boxborderw=8`;
+        const drawtextFilter = `drawtext=fontfile=${FONT_FILE}:text='${escaped}':fontsize=${textSize}:fontcolor=0x${hex}:x=(w-tw)/2:y=${y}:box=1:boxcolor=black@0.5:boxborderw=8`;
         // Combine with scale if needed
         const existingVf = args.indexOf("-vf");
         if (existingVf !== -1) {
@@ -98,16 +99,16 @@ const ThumbnailTool = () => {
       const blob = await readOutputBlob(ff, "thumb.jpg", "image/jpeg");
       const url = URL.createObjectURL(blob);
       const base = video.name.replace(/\.[^.]+$/, "");
-      const thumbName = `${base}-thumbnail.jpg`;
+      const thumbName = `${base}-frame.jpg`;
       setProgress(100); setDone(true);
       setThumbnail({ url, name: thumbName });
       sessionStore.markDone("thumbnail");
-      finishJob(jobId, { url, name: thumbName, size: formatBytes(blob.size), rawSize: blob.size }, "thumbnail", "Thumbnail");
-      toast({ title: "✓ Thumbnail extracted!" });
+      finishJob(jobId, { url, name: thumbName, size: formatBytes(blob.size), rawSize: blob.size }, "thumbnail", "Extrair Frame");
+      toast({ title: "✓ Frame extraído!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       setProcessing(false);
     }
@@ -123,7 +124,7 @@ const ThumbnailTool = () => {
     <div className="space-y-4">
       {!video ? <DropZone onFile={handleVideo} /> : (
         <VideoPreview ref={videoRef} file={video} previewUrl={previewUrl} onReset={reset}
-          badge="Scrub to select frame"
+          badge="Navegue para escolher o frame"
           onLoadedMetadata={() => {
             const d = videoRef.current?.duration || 0;
             setDuration(d); setTimestamp(Math.min(1, d));
@@ -137,7 +138,7 @@ const ThumbnailTool = () => {
           <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium flex items-center gap-1.5">
-                <Camera className="w-4 h-4 text-blue-500" /> Frame at
+                <Camera className="w-4 h-4 text-blue-500" /> Frame em
               </Label>
               <span className="text-sm font-mono text-blue-600 dark:text-blue-400">
                 {timestamp.toFixed(1)}s
@@ -148,19 +149,19 @@ const ThumbnailTool = () => {
                 setTimestamp(v);
                 if (videoRef.current) videoRef.current.currentTime = v;
               }} />
-            <p className="text-xs text-gray-400">Scrub the video above or use the slider to pick your frame.</p>
+            <p className="text-xs text-gray-400">Navegue pelo vídeo acima ou use o controle deslizante para escolher o frame.</p>
           </div>
 
           {/* Export size */}
           <div className="space-y-1">
-            <Label className="text-xs text-gray-500">Export Size</Label>
+            <Label className="text-xs text-gray-500">Tamanho de Exportação</Label>
             <Select value={exportSize} onValueChange={v => setExportSize(v as ExportSize)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="1920x1080">1920×1080 (Full HD)</SelectItem>
-                <SelectItem value="1280x720">1280×720 (HD — YouTube)</SelectItem>
+                <SelectItem value="1280x720">1280×720 (HD)</SelectItem>
                 <SelectItem value="800x450">800×450 (Web)</SelectItem>
-                <SelectItem value="original">Original size</SelectItem>
+                <SelectItem value="original">Tamanho original</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -170,30 +171,30 @@ const ThumbnailTool = () => {
             <div className="flex items-center gap-3">
               <button onClick={() => setAddText(v => !v)}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border-2 transition-all ${addText ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300" : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300"}`}>
-                <Type className="w-3.5 h-3.5" /> Add title text
+                <Type className="w-3.5 h-3.5" /> Adicionar identificação
               </button>
             </div>
             {addText && (
               <div className="space-y-3">
-                <Input value={text} onChange={e => setText(e.target.value)} placeholder="Enter title…" />
+                <Input value={text} onChange={e => setText(e.target.value)} placeholder="Digite o texto…" />
                 <div className="grid grid-cols-3 gap-2">
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-500">Size: {textSize}px</Label>
+                    <Label className="text-xs text-gray-500">Tamanho: {textSize}px</Label>
                     <Slider min={20} max={80} step={2} value={[textSize]} onValueChange={([v]) => setTextSize(v)} />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-500">Color</Label>
+                    <Label className="text-xs text-gray-500">Cor</Label>
                     <input type="color" value={textColor} onChange={e => setTextColor(e.target.value)}
                       className="w-full h-9 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer" />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-500">Position</Label>
+                    <Label className="text-xs text-gray-500">Posição</Label>
                     <Select value={textPos} onValueChange={v => setTextPos(v as "top" | "bottom" | "center")}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="top">Top</SelectItem>
-                        <SelectItem value="center">Center</SelectItem>
-                        <SelectItem value="bottom">Bottom</SelectItem>
+                        <SelectItem value="top">Topo</SelectItem>
+                        <SelectItem value="center">Centro</SelectItem>
+                        <SelectItem value="bottom">Base</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -204,10 +205,10 @@ const ThumbnailTool = () => {
 
           <AnimatedButton onClick={handleExtract} loading={processing} className="w-full" size="lg">
             <Camera className="w-4 h-4" />
-            {processing ? "Extracting…" : "Generate Thumbnail"}
+            {processing ? "Extraindo…" : "Gerar Frame"}
           </AnimatedButton>
 
-          {processing && <AnimatedProgress value={progress} label="Extracting frame…" done={done} />}
+          {processing && <AnimatedProgress value={progress} label="Extraindo frame…" done={done} />}
           {error && <ErrorRecovery error={error} onRetry={() => setError(null)} />}
 
           {/* Thumbnail preview */}
@@ -215,16 +216,16 @@ const ThumbnailTool = () => {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               className="space-y-3">
               <div className="relative rounded-xl overflow-hidden border border-green-200 dark:border-green-800 shadow-lg">
-                <img src={thumbnail.url} alt="thumbnail" className="w-full object-cover" />
+                <img src={thumbnail.url} alt="frame extraído" className="w-full object-cover" />
                 <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
-                  ✓ Ready
+                  ✓ Pronto
                 </div>
               </div>
               <AnimatedButton onClick={download} className="w-full" size="lg">
-                <Download className="w-4 h-4" /> Download Thumbnail (JPG)
+                <Download className="w-4 h-4" /> Baixar Frame (JPG)
               </AnimatedButton>
               <AnimatedButton variant="outline" onClick={() => { URL.revokeObjectURL(thumbnail.url); setThumbnail(null); setDone(false); }} className="w-full">
-                Try another frame
+                Tentar outro frame
               </AnimatedButton>
             </motion.div>
           )}

@@ -29,11 +29,11 @@ const SessionTimeline = ({ steps, onOpenTool }: SessionTimelineProps) => {
     >
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          Your session
+          Sua sessão
         </p>
         {nextStep && (
           <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-            Next: {nextStep.label}
+            Próximo: {nextStep.label}
           </span>
         )}
       </div>

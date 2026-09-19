@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Github, Globe, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const TOOLS = ["Pro Editor", "Timeline", "Overlay Studio", "Clean Video", "Convert", "Compress", "Resize", "GIF Maker", "Audio Studio", "Merge", "Subtitle", "Thumbnail", "Auto Optimize", "AI Captions", "Silence Remover"];
+const TOOLS = ["Editor Avançado", "Linha do Tempo", "Sobreposição", "Remover Marca", "Converter", "Compactar", "Redimensionar", "Criar GIF", "Áudio", "Juntar Vídeos", "Legenda", "Extrair Frame", "Otimizar", "Transcrição", "Remover Silêncio"];
 
 const Footer = () => (
   <footer className="bg-gradient-to-b from-gray-950 to-gray-950 border-t border-blue-900/30 text-gray-400 mt-auto">
@@ -23,28 +23,24 @@ const Footer = () => (
               </svg>
             </motion.div>
             <span className="text-lg font-black text-white tracking-tight">
-              Mian<span className="text-yellow-300">Convert</span>
+              all<span className="text-yellow-300">Convert</span>
             </span>
           </div>
           <p className="text-sm leading-relaxed text-gray-400">
-            A powerful browser-based video workspace. Convert, compress, edit and process videos — zero uploads, 100% private.
+            Ferramentas para preparar gravações de CFTV como evidência — converta, compacte, corte e identifique vídeos de segurança direto no navegador, sem upload.
           </p>
           <div className="flex items-center gap-1 text-xs text-blue-400 flex-wrap">
-            <span>Built with</span>
+            <span>Feito com</span>
             <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}>
               <Heart className="w-3 h-3 fill-blue-400 inline" />
             </motion.span>
-            <span>by</span>
-            <a href="https://github.com/Mianhassam96" target="_blank" rel="noreferrer"
-              className="text-blue-300 hover:text-white transition-colors font-semibold">
-              MultiMian
-            </a>
+            <span>para quem trabalha com evidências em vídeo</span>
           </div>
         </div>
 
         {/* Tools */}
         <div className="space-y-3">
-          <p className="text-white font-semibold text-sm uppercase tracking-wider">Tools</p>
+          <p className="text-white font-semibold text-sm uppercase tracking-wider">Ferramentas</p>
           <ul className="grid grid-cols-2 sm:grid-cols-2 gap-x-4 gap-y-1.5">
             {TOOLS.map(t => (
               <motion.li key={t} whileHover={{ x: 3 }}
@@ -55,32 +51,28 @@ const Footer = () => (
 
         {/* Pages + info */}
         <div className="space-y-3">
-          <p className="text-white font-semibold text-sm uppercase tracking-wider">Pages</p>
+          <p className="text-white font-semibold text-sm uppercase tracking-wider">Páginas</p>
           <ul className="space-y-1.5">
-            {[{ to: "/", label: "Home" }, { to: "/about", label: "About" }, { to: "/contact", label: "Contact" }].map(p => (
+            {[{ to: "/", label: "Início" }, { to: "/about", label: "Sobre" }, { to: "/contact", label: "Contato" }].map(p => (
               <motion.li key={p.to} whileHover={{ x: 3 }}>
                 <Link to={p.to} className="text-sm text-gray-400 hover:text-blue-300 transition-colors">{p.label}</Link>
               </motion.li>
             ))}
           </ul>
           <div className="pt-2 space-y-1.5 text-xs text-gray-500">
-            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" /> No file uploads</p>
+            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" /> Nenhum arquivo é enviado a servidores</p>
             <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" /> FFmpeg WebAssembly</p>
-            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" /> Free forever</p>
+            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" /> Gratuito</p>
           </div>
         </div>
       </div>
 
       <div className="border-t border-gray-800 pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
-        <p>© {new Date().getFullYear()} allConvert by <span className="text-blue-400 font-semibold">MultiMian</span>. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} allConvert. Todos os direitos reservados.</p>
         <div className="flex items-center gap-4">
-          <motion.a href="https://github.com/Mianhassam96/allConvert" target="_blank" rel="noreferrer"
+          <motion.a href="https://github.com/alltok/allConvert" target="_blank" rel="noreferrer"
             whileHover={{ scale: 1.05 }} className="flex items-center gap-1.5 hover:text-white transition-colors">
             <Github className="w-3.5 h-3.5" /> GitHub
-          </motion.a>
-          <motion.a href="https://multimian.com/" target="_blank" rel="noreferrer"
-            whileHover={{ scale: 1.05 }} className="flex items-center gap-1.5 hover:text-white transition-colors">
-            <Globe className="w-3.5 h-3.5" /> multimian.com
           </motion.a>
         </div>
       </div>

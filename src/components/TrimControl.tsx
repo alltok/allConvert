@@ -52,7 +52,7 @@ const TrimControl = ({ duration, start, end, onChange }: TrimControlProps) => (
     <div className="flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500">
       <span>0:00</span>
       <span className="text-blue-500 dark:text-blue-400 font-medium">
-        Selected: {fmt(end - start)} of {fmt(duration)}
+        Selecionado: {fmt(end - start)} de {fmt(duration)}
       </span>
       <span>{fmt(duration)}</span>
     </div>

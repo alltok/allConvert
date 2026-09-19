@@ -25,26 +25,26 @@ const CommandPalette = ({ onOpenTool }: CommandPaletteProps) => {
 
   const COMMANDS: Command[] = [
     // Tools
-    { id: "convert",      icon: "🔄", label: "Convert video",        description: "Change format — MP4, WebM, MP3…",    category: "Tools",     keywords: ["convert","format","mp4","webm"],    action: () => onOpenTool("convert") },
-    { id: "compress",     icon: "📦", label: "Compress video",        description: "Reduce file size up to 80%",         category: "Tools",     keywords: ["compress","size","reduce","small"],  action: () => onOpenTool("compress") },
-    { id: "trim",         icon: "✂️", label: "Trim / cut video",      description: "Cut clips, set speed, loop",         category: "Tools",     keywords: ["trim","cut","clip","speed"],         action: () => onOpenTool("timeline") },
-    { id: "resize",       icon: "📐", label: "Resize video",          description: "Change resolution or aspect ratio",  category: "Tools",     keywords: ["resize","resolution","scale","crop"], action: () => onOpenTool("resize") },
-    { id: "subtitle",     icon: "💬", label: "Add subtitles",         description: "Burn SRT captions into video",       category: "Tools",     keywords: ["subtitle","caption","srt","text"],   action: () => onOpenTool("subtitle") },
-    { id: "thumbnail",    icon: "📸", label: "Create thumbnail",      description: "Extract frame + add title text",     category: "Tools",     keywords: ["thumbnail","frame","image","jpg"],   action: () => onOpenTool("thumbnail") },
-    { id: "audio",        icon: "🎧", label: "Extract audio",         description: "Save audio as MP3, WAV or AAC",      category: "Tools",     keywords: ["audio","extract","mp3","wav"],       action: () => onOpenTool("audiostudio") },
-    { id: "gif",          icon: "🎞", label: "Make GIF",              description: "Convert video clip to animated GIF", category: "Tools",     keywords: ["gif","animate","loop"],              action: () => onOpenTool("gif") },
-    { id: "overlay",      icon: "🧩", label: "Add overlay / text",    description: "Text, logos, watermarks & layers",   category: "Tools",     keywords: ["overlay","text","logo","watermark"], action: () => onOpenTool("overlay") },
-    { id: "merge",        icon: "🔗", label: "Merge videos",          description: "Combine multiple videos into one",   category: "Tools",     keywords: ["merge","combine","join","concat"],   action: () => onOpenTool("merge") },
-    { id: "proeditor",    icon: "🎬", label: "Pro Editor",            description: "Filters, color grading, crop",       category: "Tools",     keywords: ["filter","color","grade","edit"],     action: () => onOpenTool("proeditor") },
-    { id: "autooptimize", icon: "⚡", label: "Auto Optimize",         description: "1-click smart optimization",         category: "Tools",     keywords: ["auto","optimize","smart","1click"],  action: () => onOpenTool("autooptimize") },
-    { id: "aicaption",    icon: "✨", label: "AI Captions",            description: "Auto-generate TikTok/Reel captions",  category: "Tools",     keywords: ["caption","subtitle","ai","tiktok","reel","auto"], action: () => onOpenTool("aicaption") },
-    { id: "silenceremover",icon:"🔇",label: "Silence Remover",         description: "Remove silent sections automatically",category: "Tools",     keywords: ["silence","remove","podcast","audio","cut"],       action: () => onOpenTool("silenceremover") },
+    { id: "convert",      icon: "🔄", label: "Converter vídeo",        description: "Mudar formato — MP4, WebM, MP3…",      category: "Ferramentas", keywords: ["converter","formato","mp4","webm"],    action: () => onOpenTool("convert") },
+    { id: "compress",     icon: "📦", label: "Compactar vídeo",        description: "Reduza o tamanho em até 80%",          category: "Ferramentas", keywords: ["compactar","tamanho","reduzir"],       action: () => onOpenTool("compress") },
+    { id: "trim",         icon: "✂️", label: "Cortar / aparar vídeo",  description: "Corte trechos, ajuste velocidade, repita", category: "Ferramentas", keywords: ["cortar","aparar","trecho","velocidade"], action: () => onOpenTool("timeline") },
+    { id: "resize",       icon: "📐", label: "Redimensionar vídeo",    description: "Mude a resolução ou proporção",        category: "Ferramentas", keywords: ["redimensionar","resolucao","proporcao"], action: () => onOpenTool("resize") },
+    { id: "subtitle",     icon: "💬", label: "Adicionar legenda",      description: "Grave legendas .srt no vídeo",         category: "Ferramentas", keywords: ["legenda","srt","texto"],   action: () => onOpenTool("subtitle") },
+    { id: "thumbnail",    icon: "📸", label: "Extrair frame",          description: "Extraia uma imagem still do vídeo",    category: "Ferramentas", keywords: ["frame","imagem","print","still"],   action: () => onOpenTool("thumbnail") },
+    { id: "audio",        icon: "🎧", label: "Extrair áudio",          description: "Salve o áudio como MP3, WAV ou AAC",   category: "Ferramentas", keywords: ["audio","extrair","mp3","wav"],       action: () => onOpenTool("audiostudio") },
+    { id: "gif",          icon: "🎞", label: "Criar GIF",              description: "Converta um trecho em GIF animado",    category: "Ferramentas", keywords: ["gif","animar","loop"],              action: () => onOpenTool("gif") },
+    { id: "overlay",      icon: "🧩", label: "Adicionar marcação/texto", description: "Texto, identificação e camadas",     category: "Ferramentas", keywords: ["marcacao","texto","identificacao"], action: () => onOpenTool("overlay") },
+    { id: "merge",        icon: "🔗", label: "Juntar vídeos",          description: "Combine várias gravações em uma só",   category: "Ferramentas", keywords: ["juntar","combinar","unir","cameras"],   action: () => onOpenTool("merge") },
+    { id: "proeditor",    icon: "🎬", label: "Editor Avançado",        description: "Filtros, correção de cor, corte",      category: "Ferramentas", keywords: ["filtro","cor","corte","editar"],     action: () => onOpenTool("proeditor") },
+    { id: "autooptimize", icon: "⚡", label: "Otimização Automática",  description: "Otimização inteligente em 1 clique",   category: "Ferramentas", keywords: ["auto","otimizar","1clique"],  action: () => onOpenTool("autooptimize") },
+    { id: "aicaption",    icon: "✨", label: "Transcrição de Áudio",    description: "Gera legendas a partir do áudio (experimental)", category: "Ferramentas", keywords: ["transcricao","legenda","audio","texto"], action: () => onOpenTool("aicaption") },
+    { id: "silenceremover",icon:"🔇",label: "Remover Silêncio",        description: "Remove trechos sem áudio automaticamente",category: "Ferramentas", keywords: ["silencio","remover","depoimento","audio","cortar"],       action: () => onOpenTool("silenceremover") },
     // Presets
-    { id: "p-tiktok",     icon: "📱", label: "TikTok preset",         description: "MP4 · 720p · vertical-ready",        category: "Presets",   keywords: ["tiktok","vertical","9:16","short"],  action: () => onOpenTool("convert", "tiktok") },
-    { id: "p-youtube",    icon: "▶️", label: "YouTube 1080p preset",  description: "MP4 · 1080p · high quality",         category: "Presets",   keywords: ["youtube","1080p","hd","upload"],     action: () => onOpenTool("convert", "youtube") },
-    { id: "p-whatsapp",   icon: "💬", label: "WhatsApp preset",       description: "MP4 · 480p · small file",            category: "Presets",   keywords: ["whatsapp","small","mobile","share"],  action: () => onOpenTool("convert", "whatsapp") },
-    { id: "p-instagram",  icon: "📸", label: "Instagram Reel preset", description: "MP4 · 720p · balanced",              category: "Presets",   keywords: ["instagram","reel","story","square"],  action: () => onOpenTool("convert", "instagram") },
-    { id: "p-mp3",        icon: "🎵", label: "Extract as MP3",        description: "Audio only — MP3 format",            category: "Presets",   keywords: ["mp3","audio","extract","music"],     action: () => onOpenTool("convert", "audio_mp3") },
+    { id: "p-evidencia",  icon: "🔎", label: "Perfil Evidência HD",    description: "MP4 · 1080p · máxima qualidade",       category: "Perfis",   keywords: ["evidencia","pericia","hd","qualidade"],  action: () => onOpenTool("convert", "evidencia_hd") },
+    { id: "p-processo",   icon: "📎", label: "Perfil Processo Eletrônico", description: "MP4 · 720p · pronto para anexar",  category: "Perfis",   keywords: ["processo","anexo","pje","email"],     action: () => onOpenTool("convert", "processo") },
+    { id: "p-whatsapp",   icon: "💬", label: "Perfil WhatsApp",        description: "MP4 · 480p · arquivo pequeno",         category: "Perfis",   keywords: ["whatsapp","pequeno","envio"],  action: () => onOpenTool("convert", "whatsapp") },
+    { id: "p-email",      icon: "📧", label: "Perfil E-mail",          description: "MP4 · reduzido para anexo",            category: "Perfis",   keywords: ["email","anexo"],  action: () => onOpenTool("convert", "email") },
+    { id: "p-mp3",        icon: "🎵", label: "Extrair como MP3",       description: "Somente áudio — formato MP3",          category: "Perfis",   keywords: ["mp3","audio","extrair"],     action: () => onOpenTool("convert", "audio_mp3") },
   ];
 
   const filtered = query.trim()
@@ -102,7 +102,7 @@ const CommandPalette = ({ onOpenTool }: CommandPaletteProps) => {
         className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-900/60 text-xs text-gray-400 hover:border-blue-300 hover:text-blue-500 transition-all"
       >
         <Search className="w-3.5 h-3.5" />
-        <span>Search tools…</span>
+        <span>Buscar ferramentas…</span>
         <kbd className="ml-1 px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-[10px] font-mono">⌘K</kbd>
       </button>
 
@@ -129,7 +129,7 @@ const CommandPalette = ({ onOpenTool }: CommandPaletteProps) => {
                   value={query}
                   onChange={e => setQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Search tools, presets, actions…"
+                  placeholder="Buscar ferramentas, perfis, ações…"
                   className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none"
                 />
                 <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ const CommandPalette = ({ onOpenTool }: CommandPaletteProps) => {
               {/* Results */}
               <div className="max-h-80 overflow-y-auto py-2">
                 {flat.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400 text-sm">No results for "{query}"</div>
+                  <div className="text-center py-8 text-gray-400 text-sm">Nenhum resultado para "{query}"</div>
                 ) : (
                   Object.entries(grouped).map(([category, cmds]) => (
                     <div key={category}>
@@ -184,9 +184,9 @@ const CommandPalette = ({ onOpenTool }: CommandPaletteProps) => {
 
               {/* Footer */}
               <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-800 flex items-center gap-4 text-[10px] text-gray-400">
-                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 font-mono">↑↓</kbd> navigate</span>
-                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 font-mono">↵</kbd> open</span>
-                <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-blue-400" /> {flat.length} commands</span>
+                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 font-mono">↑↓</kbd> navegar</span>
+                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 font-mono">↵</kbd> abrir</span>
+                <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-blue-400" /> {flat.length} comandos</span>
               </div>
             </motion.div>
           </>

@@ -8,24 +8,24 @@ interface AnimatedProgressProps {
 }
 
 const STAGES = [
-  { label: "Uploading",  threshold: 0  },
-  { label: "Processing", threshold: 15 },
-  { label: "Optimizing",threshold: 50 },
-  { label: "Finalizing", threshold: 80 },
+  { label: "Enviando",     threshold: 0  },
+  { label: "Processando",  threshold: 15 },
+  { label: "Otimizando",   threshold: 50 },
+  { label: "Finalizando",  threshold: 80 },
 ];
 
 const getStageLabel = (value: number): string => {
-  if (value < 15) return "Uploading to memory…";
-  if (value < 50) return "Processing frames…";
-  if (value < 80) return "Optimizing output…";
-  return "Finalizing…";
+  if (value < 15) return "Carregando na memória…";
+  if (value < 50) return "Processando frames…";
+  if (value < 80) return "Otimizando saída…";
+  return "Finalizando…";
 };
 
 const AnimatedProgress = ({ value, label, done, stages = false }: AnimatedProgressProps) => (
   <div className="space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3.5 sm:p-4 border border-gray-100 dark:border-gray-700/50">
     <div className="flex items-center justify-between text-xs">
       <span className="text-gray-500 dark:text-gray-400 font-medium truncate pr-2">
-        {done ? "Processing complete" : stages ? getStageLabel(value) : (label || "Processing…")}
+        {done ? "Processamento concluído" : stages ? getStageLabel(value) : (label || "Processando…")}
       </span>
       <AnimatePresence mode="wait">
         {done ? (
@@ -37,7 +37,7 @@ const AnimatedProgress = ({ value, label, done, stages = false }: AnimatedProgre
                 initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                 transition={{ duration: 0.4, ease: "easeOut" }} />
             </svg>
-            Done!
+            Pronto!
           </motion.span>
         ) : (
           <motion.span key="pct" className="font-mono font-bold text-blue-600 dark:text-blue-400 shrink-0 tabular-nums">
@@ -99,7 +99,7 @@ const AnimatedProgress = ({ value, label, done, stages = false }: AnimatedProgre
 
     {!stages && !done && value > 0 && value < 100 && (
       <p className="text-[10px] text-gray-400 dark:text-gray-500">
-        {value < 30 ? "Loading & preparing…" : value < 70 ? "Processing frames…" : "Finalizing output…"}
+        {value < 30 ? "Carregando e preparando…" : value < 70 ? "Processando frames…" : "Finalizando saída…"}
       </p>
     )}
   </div>

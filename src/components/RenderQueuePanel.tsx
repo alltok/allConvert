@@ -38,7 +38,7 @@ const JobRow = ({ job }: { job: RenderJob }) => {
           {job.toolLabel}
           {job.status === "processing" && ` · ${job.progress}%`}
           {job.status === "done" && job.resultSize && ` · ${job.resultSize}`}
-          {job.status === "error" && ` · Failed`}
+          {job.status === "error" && ` · Falhou`}
         </p>
         {job.status === "processing" && (
           <div className="mt-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -90,7 +90,7 @@ const RenderQueuePanel = () => {
         className="fixed left-3 sm:left-4 bottom-4 sm:bottom-6 z-40 flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-3 py-2.5 rounded-2xl shadow-xl text-xs font-bold hover:border-blue-400 transition-colors"
       >
         <ListVideo className="w-4 h-4 text-blue-500" />
-        <span>Queue</span>
+        <span>Fila</span>
         {active.length > 0 && (
           <span className="bg-blue-600 text-white px-1.5 py-0.5 rounded-full text-[10px] animate-pulse">
             {active.length}
@@ -117,16 +117,16 @@ const RenderQueuePanel = () => {
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-2">
                   <ListVideo className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm font-bold text-gray-900 dark:text-white">Render Queue</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">Fila de Processamento</span>
                   {active.length > 0 && (
                     <span className="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full font-semibold">
-                      {active.length} active
+                      {active.length} ativo{active.length > 1 ? "s" : ""}
                     </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => renderQueue.clear()}
-                    className="text-[10px] text-gray-400 hover:text-red-500 transition-colors">Clear</button>
+                    className="text-[10px] text-gray-400 hover:text-red-500 transition-colors">Limpar</button>
                   <button onClick={() => setOpen(false)}>
                     <X className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" />
                   </button>

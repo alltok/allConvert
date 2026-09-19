@@ -1,12 +1,10 @@
-﻿import { useState, useRef, useEffect, lazy, Suspense } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DropZone from "@/components/DropZone";
 import UseCaseBar from "@/components/UseCaseBar";
-import LiveStats from "@/components/LiveStats";
 import SessionTimeline from "@/components/SessionTimeline";
-import ActivityFeed from "@/components/ActivityFeed";
 import WorkflowTemplates from "@/components/WorkflowTemplates";
 import RecentWorkflows from "@/components/RecentWorkflows";
 import WorkspaceSidebar from "@/components/WorkspaceSidebar";
@@ -52,53 +50,53 @@ interface ToolDef {
 
 const TOOL_SECTIONS = [
   {
-    id: "edit", label: "Edit Tools", emoji: "🎬",
+    id: "edit", label: "Ferramentas de Edição", emoji: "🎬",
     accent: "from-blue-600 to-blue-600",
     cols: "grid-cols-1 sm:grid-cols-2",
     tools: [
-      { id: "proeditor",    icon: "🎬", label: "Pro Editor",     desc: "Filters, color grading, crop & effects",                       tags: ["filter","color","crop","edit"],                    gradient: "from-blue-500 to-blue-600",  iconBg: "bg-blue-100 dark:bg-blue-900/40"  },
-      { id: "timeline",     icon: "✂️", label: "Timeline",       desc: "Trim, cut, speed control & loop",                              tags: ["trim","cut","speed","loop","clip"],                gradient: "from-blue-500 to-blue-600",  iconBg: "bg-blue-100 dark:bg-blue-900/40"  },
-      { id: "overlay",      icon: "🧩", label: "Overlay Studio", desc: "Text, logos, watermarks & layers",                             tags: ["text","logo","watermark","overlay"],               gradient: "from-blue-500 to-blue-600", iconBg: "bg-blue-100 dark:bg-blue-900/40"},
-      { id: "clean",        icon: "🧹", label: "Clean Video",    desc: "Remove unwanted text or logo",                                 tags: ["remove","clean","logo","delogo"],                  gradient: "from-pink-500 to-blue-600",   iconBg: "bg-pink-100 dark:bg-pink-900/40"      },
+      { id: "proeditor",    icon: "🎬", label: "Editor Avançado", desc: "Filtros, correção de cor, corte e realce de imagem",           tags: ["filtro","cor","corte","editar","realce"],          gradient: "from-blue-500 to-blue-600",  iconBg: "bg-blue-100 dark:bg-blue-900/40"  },
+      { id: "timeline",     icon: "✂️", label: "Linha do Tempo", desc: "Corte o trecho relevante, ajuste velocidade e repita cenas",    tags: ["cortar","trecho","velocidade","repetir"],          gradient: "from-blue-500 to-blue-600",  iconBg: "bg-blue-100 dark:bg-blue-900/40"  },
+      { id: "overlay",      icon: "🧩", label: "Sobreposição",   desc: "Texto, marcações, identificação e camadas sobre o vídeo",       tags: ["texto","marcacao","identificacao","sobrepor"],     gradient: "from-blue-500 to-blue-600", iconBg: "bg-blue-100 dark:bg-blue-900/40"},
+      { id: "clean",        icon: "🧹", label: "Remover Marca/Texto", desc: "Remove texto ou logotipo indesejado (uso em cópias, não no original)", tags: ["remover","limpar","logo","texto"],  gradient: "from-pink-500 to-blue-600",   iconBg: "bg-pink-100 dark:bg-pink-900/40"      },
     ] as ToolDef[],
   },
   {
-    id: "convert", label: "Convert Tools", emoji: "🔄",
+    id: "convert", label: "Ferramentas de Conversão", emoji: "🔄",
     accent: "from-blue-600 to-cyan-500",
     cols: "grid-cols-1 sm:grid-cols-2",
     tools: [
-      { id: "convert",      icon: "🔄", label: "Convert",        desc: "MP4, WebM, AVI, MOV, MKV, MP3, WAV",                          tags: ["convert","format","mp4","webm","mp3"],             gradient: "from-blue-500 to-cyan-500",    iconBg: "bg-blue-100 dark:bg-blue-900/40"   },
-      { id: "compress",     icon: "📦", label: "Compress",       desc: "Reduce file size without losing quality",                      tags: ["compress","size","reduce"],                        gradient: "from-cyan-500 to-teal-500",    iconBg: "bg-cyan-100 dark:bg-cyan-900/40"   },
-      { id: "resize",       icon: "📐", label: "Resize",         desc: "Resolution, aspect ratio & letterbox",                         tags: ["resize","resolution","aspect","scale"],            gradient: "from-teal-500 to-emerald-500", iconBg: "bg-teal-100 dark:bg-teal-900/40"   },
-      { id: "gif",          icon: "🎞", label: "GIF Maker",      desc: "Convert video to animated GIF",                               tags: ["gif","animate","convert"],                         gradient: "from-sky-500 to-blue-600",     iconBg: "bg-sky-100 dark:bg-sky-900/40"     },
+      { id: "convert",      icon: "🔄", label: "Converter",      desc: "DVR, MP4, WebM, AVI, MOV, MKV, MP3, WAV",                     tags: ["converter","formato","mp4","webm","mp3","dvr"],    gradient: "from-blue-500 to-cyan-500",    iconBg: "bg-blue-100 dark:bg-blue-900/40"   },
+      { id: "compress",     icon: "📦", label: "Compactar",      desc: "Reduza o tamanho para anexar em processos e e-mails",          tags: ["compactar","tamanho","reduzir"],                   gradient: "from-cyan-500 to-teal-500",    iconBg: "bg-cyan-100 dark:bg-cyan-900/40"   },
+      { id: "resize",       icon: "📐", label: "Redimensionar",  desc: "Resolução, proporção e bordas de preenchimento",               tags: ["redimensionar","resolucao","proporcao"],           gradient: "from-teal-500 to-emerald-500", iconBg: "bg-teal-100 dark:bg-teal-900/40"   },
+      { id: "gif",          icon: "🎞", label: "Criar GIF",      desc: "Converta um trecho do vídeo em GIF animado",                  tags: ["gif","animar","converter"],                        gradient: "from-sky-500 to-blue-600",     iconBg: "bg-sky-100 dark:bg-sky-900/40"     },
     ] as ToolDef[],
   },
   {
-    id: "audio", label: "Audio Studio", emoji: "🎵",
+    id: "audio", label: "Estúdio de Áudio", emoji: "🎵",
     accent: "from-blue-600 to-pink-500",
     cols: "grid-cols-1",
     tools: [
-      { id: "audiostudio",  icon: "🎵", label: "Audio Studio",   desc: "Mute, extract, volume boost, fade in/out & convert audio",     tags: ["audio","mute","extract","volume","fade","convert"],gradient: "from-blue-500 to-pink-500", iconBg: "bg-blue-100 dark:bg-blue-900/40"},
+      { id: "audiostudio",  icon: "🎵", label: "Áudio",          desc: "Silenciar, extrair, ajustar volume, fade in/out e converter áudio", tags: ["audio","silenciar","extrair","volume","fade","converter"],gradient: "from-blue-500 to-pink-500", iconBg: "bg-blue-100 dark:bg-blue-900/40"},
     ] as ToolDef[],
   },
   {
-    id: "advanced", label: "Advanced Tools", emoji: "⚡",
+    id: "advanced", label: "Ferramentas Avançadas", emoji: "⚡",
     accent: "from-orange-500 to-amber-500",
     cols: "grid-cols-1 sm:grid-cols-3",
     tools: [
-      { id: "merge",        icon: "🔗", label: "Merge",          desc: "Combine multiple videos into one",                             tags: ["merge","combine","join"],                          gradient: "from-orange-500 to-amber-500",  iconBg: "bg-orange-100 dark:bg-orange-900/40"},
-      { id: "subtitle",     icon: "💬", label: "Subtitle",       desc: "Burn SRT captions into video",                                tags: ["subtitle","caption","srt","text"],                 gradient: "from-amber-500 to-yellow-500",  iconBg: "bg-amber-100 dark:bg-amber-900/40" },
-      { id: "thumbnail",    icon: "🖼", label: "Thumbnail",      desc: "Extract frame & add title text",                              tags: ["thumbnail","frame","image","jpg"],                 gradient: "from-yellow-500 to-orange-500", iconBg: "bg-yellow-100 dark:bg-yellow-900/40"},
+      { id: "merge",        icon: "🔗", label: "Juntar Vídeos",  desc: "Combine gravações de múltiplas câmeras em uma só",             tags: ["juntar","combinar","unir","cameras"],              gradient: "from-orange-500 to-amber-500",  iconBg: "bg-orange-100 dark:bg-orange-900/40"},
+      { id: "subtitle",     icon: "💬", label: "Legenda",        desc: "Grave legendas .srt permanentemente no vídeo",                tags: ["legenda","srt","texto"],                           gradient: "from-amber-500 to-yellow-500",  iconBg: "bg-amber-100 dark:bg-amber-900/40" },
+      { id: "thumbnail",    icon: "🖼", label: "Extrair Frame",  desc: "Capture uma imagem still como evidência fotográfica",         tags: ["frame","imagem","print","still","foto"],           gradient: "from-yellow-500 to-orange-500", iconBg: "bg-yellow-100 dark:bg-yellow-900/40"},
     ] as ToolDef[],
   },
   {
-    id: "smart", label: "Smart Tools", emoji: "🧠",
+    id: "smart", label: "Ferramentas Inteligentes", emoji: "🧠",
     accent: "from-blue-600 to-blue-600",
     cols: "grid-cols-1 sm:grid-cols-3",
     tools: [
-      { id: "autooptimize",   icon: "⚡", label: "Auto Optimize",    desc: "1-click: detect & apply best format, compression & resolution", tags: ["auto","optimize","smart","1click"],          gradient: "from-blue-600 to-blue-600", iconBg: "bg-blue-100 dark:bg-blue-900/40" },
-      { id: "aicaption",      icon: "✨", label: "AI Captions",      desc: "Auto-generate captions with TikTok, Reel & YouTube styles",    tags: ["caption","subtitle","ai","tiktok","reel"],  gradient: "from-blue-600 to-pink-600",   iconBg: "bg-blue-100 dark:bg-blue-900/40" },
-      { id: "silenceremover", icon: "🔇", label: "Silence Remover",  desc: "Auto-remove silent sections from video or audio",              tags: ["silence","remove","podcast","audio","cut"],  gradient: "from-slate-600 to-gray-700",    iconBg: "bg-slate-100 dark:bg-slate-900/40" },
+      { id: "autooptimize",   icon: "⚡", label: "Otimização Automática", desc: "1 clique: detecta e aplica o melhor formato, compactação e resolução",   tags: ["auto","otimizar","1clique"],          gradient: "from-blue-600 to-blue-600", iconBg: "bg-blue-100 dark:bg-blue-900/40" },
+      { id: "aicaption",      icon: "✨", label: "Transcrição",   desc: "Gera transcrição do áudio da gravação (experimental)",                    tags: ["transcricao","legenda","audio","texto"],  gradient: "from-blue-600 to-pink-600",   iconBg: "bg-blue-100 dark:bg-blue-900/40" },
+      { id: "silenceremover", icon: "🔇", label: "Remover Silêncio", desc: "Remove automaticamente trechos sem áudio do vídeo",                    tags: ["silencio","remover","depoimento","audio","cortar"],  gradient: "from-slate-600 to-gray-700",    iconBg: "bg-slate-100 dark:bg-slate-900/40" },
     ] as ToolDef[],
   },
 ];
@@ -106,16 +104,16 @@ const TOOL_SECTIONS = [
 const ALL_TOOLS: ToolDef[] = TOOL_SECTIONS.flatMap(s => s.tools);
 
 const TRUST_ITEMS = [
-  { icon: <Lock className="w-3.5 h-3.5" />,   text: "Runs locally (FFmpeg in browser)" },
-  { icon: <Zap className="w-3.5 h-3.5" />,    text: "Super fast processing" },
-  { icon: <Shield className="w-3.5 h-3.5" />, text: "Files never leave your device" },
+  { icon: <Lock className="w-3.5 h-3.5" />,   text: "Roda localmente (FFmpeg no navegador)" },
+  { icon: <Zap className="w-3.5 h-3.5" />,    text: "Processamento rápido" },
+  { icon: <Shield className="w-3.5 h-3.5" />, text: "O arquivo nunca sai do seu computador" },
 ];
 
 const STATS = [
-  { value: "15",   label: "Tools",    emoji: "🛠" },
-  { value: "10+",  label: "Formats",  emoji: "🎞" },
-  { value: "0",    label: "Uploads",  emoji: "🔒" },
-  { value: "100%", label: "Private",  emoji: "✅" },
+  { value: "15",   label: "Ferramentas", emoji: "🛠" },
+  { value: "10+",  label: "Formatos",    emoji: "🎞" },
+  { value: "0",    label: "Envios",      emoji: "🔒" },
+  { value: "100%", label: "Privado",     emoji: "✅" },
 ];
 
 // ── Tool Card ─────────────────────────────────────────────────────────────────
@@ -166,7 +164,7 @@ const ToolCard = ({
         "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200",
         `bg-gradient-to-r ${tool.gradient} text-white shadow-sm opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0`
       )}>
-        Open Tool <ChevronRight className="w-3 h-3" />
+        Abrir Ferramenta <ChevronRight className="w-3 h-3" />
       </div>
     </div>
   </motion.div>
@@ -198,7 +196,7 @@ const ToolSection = ({
       </div>
       <div className="flex-1 h-px bg-gradient-to-r from-gray-200 dark:from-gray-700 to-transparent" />
       <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
-        {section.tools.length} tool{section.tools.length > 1 ? "s" : ""}
+        {section.tools.length} ferramenta{section.tools.length > 1 ? "s" : ""}
       </span>
     </div>
     <motion.div
@@ -313,11 +311,11 @@ const Index = () => {
 
   // Build session timeline steps
   const TIMELINE_STEPS = [
-    { id: "upload",      icon: "📂", label: "Uploaded",   done: !!session.file },
-    { id: "convert",     icon: "🔄", label: "Converted",  done: session.completedTools.includes("convert") },
-    { id: "compress",    icon: "📦", label: "Compressed", done: session.completedTools.includes("compress") },
-    { id: "subtitle",    icon: "💬", label: "Subtitled",  done: session.completedTools.includes("subtitle") },
-    { id: "thumbnail",   icon: "📸", label: "Thumbnail",  done: session.completedTools.includes("thumbnail") },
+    { id: "upload",      icon: "📂", label: "Enviado",      done: !!session.file },
+    { id: "convert",     icon: "🔄", label: "Convertido",   done: session.completedTools.includes("convert") },
+    { id: "compress",    icon: "📦", label: "Compactado",   done: session.completedTools.includes("compress") },
+    { id: "subtitle",    icon: "💬", label: "Legendado",    done: session.completedTools.includes("subtitle") },
+    { id: "thumbnail",   icon: "📸", label: "Frame extraído", done: session.completedTools.includes("thumbnail") },
   ];
 
   return (
@@ -349,23 +347,23 @@ const Index = () => {
             <motion.div variants={fadeUp} className="flex justify-center">
               <span className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-300 shadow-sm shadow-blue-500/10">
                 <motion.span animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 4 }} className="text-base">⚡</motion.span>
-                FFmpeg WebAssembly — 100% in your browser, zero uploads
+                FFmpeg WebAssembly — 100% no seu navegador, sem envios
               </span>
             </motion.div>
 
             <motion.div variants={fadeUp} className="space-y-2">
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1] tracking-tight">
-                Prepare videos for TikTok,
+                Prepare gravações de CFTV para
               </h1>
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight">
                 <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-500 bg-clip-text text-transparent text-glow">
-                  YouTube & Reels — instantly
+                  perícia, processos e ocorrências
                 </span>
               </h1>
             </motion.div>
 
             <motion.p variants={fadeUp} className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-sm sm:text-base leading-relaxed px-2">
-              No upload. No watermark. No waiting. Your browser-based creator workspace.
+              Sem upload. Sem nuvem. Sem espera. O arquivo original nunca sai do seu computador — a gravação é processada inteiramente no seu navegador.
             </motion.p>
 
             {/* Trust pills — cleaner, fewer */}
@@ -389,14 +387,9 @@ const Index = () => {
                 </motion.div>
               ))}
             </motion.div>
-
-            {/* Live Stats */}
-            <motion.div variants={fadeUp}>
-              <LiveStats />
-            </motion.div>
           </motion.section>
 
-          {/* ── HERO CTA — ONE BIG BUTTON (Phase 3+10) ── */}
+          {/* ── HERO CTA — ONE BIG BUTTON ── */}
           <motion.div
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
@@ -410,17 +403,17 @@ const Index = () => {
               style={{ background: "linear-gradient(135deg, #0f62fe 0%, #4589ff 50%, #78a9ff 100%)", backgroundSize: "200% 200%", animation: "gradientShift 4s ease infinite" }}
             >
               <motion.span animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }} className="text-xl">⚡</motion.span>
-              Auto Optimize My Video
-              <span className="text-xs bg-white/20 px-2 py-1 rounded-full font-bold">1 CLICK</span>
+              Otimizar Minha Gravação
+              <span className="text-xs bg-white/20 px-2 py-1 rounded-full font-bold">1 CLIQUE</span>
             </motion.button>
 
             {/* Secondary CTAs — outcome-first */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
-                { icon: "📱", label: "Make TikTok-ready",    toolId: "convert",    preset: "tiktok" },
-                { icon: "✨", label: "Add viral captions",   toolId: "aicaption",  preset: undefined },
-                { icon: "📦", label: "Reduce for WhatsApp",  toolId: "compress",   preset: undefined },
-                { icon: "🎧", label: "Extract podcast audio",toolId: "audiostudio",preset: undefined },
+                { icon: "🔎", label: "Preparar para perícia",     toolId: "convert",    preset: "evidencia_hd" },
+                { icon: "📎", label: "Preparar para processo",    toolId: "convert",    preset: "processo" },
+                { icon: "📦", label: "Compactar para envio",      toolId: "compress",   preset: undefined },
+                { icon: "🎧", label: "Extrair áudio da gravação", toolId: "audiostudio",preset: undefined },
               ].map((cta, i) => (
                 <motion.button key={cta.toolId + i}
                   initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
@@ -485,10 +478,7 @@ const Index = () => {
           {/* ── RECENT WORKFLOWS (from memory) ── */}
           <RecentWorkflows onOpen={openTool} />
 
-          {/* ── ACTIVITY FEED + TRENDING ── */}
-          <ActivityFeed />
-
-          {/* ── AI CAPTIONS HERO (Phase 6 — viral framing) ── */}
+          {/* ── TRANSCRIÇÃO HERO ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.4 }}
@@ -500,16 +490,16 @@ const Index = () => {
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">✨</span>
-                  <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">NEW FEATURE</span>
+                  <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">EXPERIMENTAL</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black leading-tight">
-                  Viral Captions in One Click
+                  Transcrição de Áudio em Um Clique
                 </h2>
                 <p className="text-white/80 text-sm leading-relaxed">
-                  TikTok-style animated subtitles. Auto-transcribed from your video. 6 creator styles — TikTok Bold, Reel Glow, Gaming Neon & more.
+                  Gera legendas a partir do áudio da gravação, úteis para revisar depoimentos e diálogos. Usa o reconhecimento de voz do navegador — evite em material sigiloso.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {["TikTok Bold", "Reel Glow", "YouTube Clean", "Gaming Neon"].map(s => (
+                  {["Alto Contraste", "Discreto", "Documento/Laudo", "Identificação"].map(s => (
                     <span key={s} className="text-[11px] bg-white/20 px-2.5 py-1 rounded-full font-semibold">{s}</span>
                   ))}
                 </div>
@@ -519,12 +509,12 @@ const Index = () => {
                 onClick={() => openTool("aicaption")}
                 className="shrink-0 flex items-center gap-2 bg-white text-blue-700 font-black px-5 py-3 rounded-xl shadow-lg text-sm hover:shadow-xl transition-all"
               >
-                ✨ Try AI Captions
+                ✨ Testar Transcrição
               </motion.button>
             </div>
           </motion.div>
 
-          {/* ── CREATOR STATS (Phase 8 — alive product) ── */}
+          {/* ── ESTATÍSTICAS DE USO ── */}
           <CreatorStats />
 
           {/* ── SEARCH BAR ── */}
@@ -534,7 +524,7 @@ const Index = () => {
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search tools… (e.g. compress, subtitle, gif)"
+              placeholder="Buscar ferramentas… (ex.: compactar, legenda, gif)"
               className="w-full pl-11 pr-10 py-3 sm:py-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 backdrop-blur-sm text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
             />
             {search && (
@@ -552,7 +542,7 @@ const Index = () => {
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-sm font-bold shadow-md">
                     <Star className="w-4 h-4 fill-white" />
-                    <span>Favorites</span>
+                    <span>Favoritos</span>
                   </div>
                   <div className="flex-1 h-px bg-gradient-to-r from-amber-200 dark:from-amber-800 to-transparent" />
                 </div>
@@ -573,8 +563,8 @@ const Index = () => {
             {filteredSections.length === 0 && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 space-y-3">
                 <p className="text-4xl">🔍</p>
-                <p className="text-gray-500 dark:text-gray-400 font-medium">No tools found for "{search}"</p>
-                <button onClick={() => setSearch("")} className="text-blue-500 text-sm hover:underline">Clear search</button>
+                <p className="text-gray-500 dark:text-gray-400 font-medium">Nenhuma ferramenta encontrada para "{search}"</p>
+                <button onClick={() => setSearch("")} className="text-blue-500 text-sm hover:underline">Limpar busca</button>
               </motion.div>
             )}
           </div>
@@ -621,7 +611,7 @@ const Index = () => {
                             <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
                             <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                           </svg>
-                          <span className="text-sm font-medium">Loading tool…</span>
+                          <span className="text-sm font-medium">Carregando ferramenta…</span>
                         </div>
                       }>
                         {renderActiveTool()}
@@ -639,12 +629,12 @@ const Index = () => {
             viewport={{ once: true }} transition={{ duration: 0.5 }}
             className="glass-card p-5 sm:p-8"
           >
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-5 text-center">How it works</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-5 text-center">Como funciona</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               {[
-                { n: "1", emoji: "📂", title: "Upload", desc: "Drag & drop or click to pick your video. It never leaves your device." },
-                { n: "2", emoji: "⚙️", title: "Process", desc: "Pick a tool, tweak settings. FFmpeg WASM handles everything in-browser." },
-                { n: "3", emoji: "⬇️", title: "Download", desc: "Your file is ready instantly. Download it — no waiting, no account." },
+                { n: "1", emoji: "📂", title: "Enviar", desc: "Arraste ou clique para selecionar a gravação. Ela nunca sai do seu computador." },
+                { n: "2", emoji: "⚙️", title: "Processar", desc: "Escolha a ferramenta e ajuste as opções. O FFmpeg WASM processa tudo no navegador." },
+                { n: "3", emoji: "⬇️", title: "Baixar", desc: "O arquivo fica pronto na hora. Baixe direto — sem espera, sem cadastro." },
               ].map((s, i) => (
                 <motion.div key={s.n}
                   initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }}

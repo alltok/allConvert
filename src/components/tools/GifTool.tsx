@@ -58,10 +58,10 @@ const GifTool = () => {
 
   const handleProcess = async () => {
     if (!video) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false); setError(null);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "gif", toolLabel: "GIF Maker", icon: "🎞", fileName: video.name });
+    const jobId = startJob({ toolId: "gif", toolLabel: "GIF", icon: "🎞", fileName: video.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -98,13 +98,13 @@ const GifTool = () => {
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr, preview: url });
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "gif", "GIF Maker");
-      toast({ title: "✓ GIF created!", description: sizeStr });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "gif", "GIF");
+      toast({ title: "✓ GIF criado!", description: sizeStr });
     } catch (e) {
       const msg = String(e);
       setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "GIF failed", description: msg });
+      toast({ variant: "destructive", title: "Falha ao criar GIF", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -114,15 +114,15 @@ const GifTool = () => {
   const w = parseInt(width) || 480;
   const estimatedMB = parseFloat(estimateGifMB(d, w, fps));
   const sizeWarning = estimatedMB > 20
-    ? `⚠️ Estimated ~${estimatedMB}MB — reduce duration, width or FPS for a smaller file.`
+    ? `⚠️ Estimativa de ~${estimatedMB}MB — reduza duração, largura ou FPS para um arquivo menor.`
     : estimatedMB > 8
-    ? `💡 Estimated ~${estimatedMB}MB — consider reducing settings.`
+    ? `💡 Estimativa de ~${estimatedMB}MB — considere reduzir as configurações.`
     : null;
 
   return (
     <div className="space-y-5">
       {!video ? (
-        <DropZone onFile={handleVideo} label="Drop video to convert to GIF" />
+        <DropZone onFile={handleVideo} label="Solte o vídeo para converter em GIF" />
       ) : (
         <VideoPreview ref={videoRef} file={video} previewUrl={previewUrl} onReset={reset}
           onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)} />
@@ -133,17 +133,17 @@ const GifTool = () => {
           <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs text-gray-500">Start time (s)</Label>
+                <Label className="text-xs text-gray-500">Início (s)</Label>
                 <Input type="number" min="0" max={duration} step="0.1" value={start}
                   onChange={e => setStart(e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-gray-500">Duration (s, max 30)</Label>
+                <Label className="text-xs text-gray-500">Duração (s, máx 30)</Label>
                 <Input type="number" min="1" max="30" value={gifDuration}
                   onChange={e => setGifDuration(e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-gray-500">Width (px)</Label>
+                <Label className="text-xs text-gray-500">Largura (px)</Label>
                 <Input type="number" min="120" max="800" step="40" value={width}
                   onChange={e => setWidth(e.target.value)} />
               </div>
@@ -162,7 +162,7 @@ const GifTool = () => {
               </div>
             ) : (
               <p className="text-xs text-green-600 dark:text-green-400">
-                ✓ Estimated ~{estimatedMB}MB — looks good!
+                ✓ Estimativa de ~{estimatedMB}MB — parece bom!
               </p>
             )}
           </div>
@@ -172,21 +172,21 @@ const GifTool = () => {
             <div className="flex items-start gap-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
               <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-red-700 dark:text-red-400">Processing failed</p>
+                <p className="text-sm font-semibold text-red-700 dark:text-red-400">O processamento falhou</p>
                 <p className="text-xs text-red-500 dark:text-red-500 mt-0.5 truncate">{error}</p>
               </div>
               <button onClick={() => setError(null)}
                 className="shrink-0 text-xs text-red-500 hover:text-red-700 flex items-center gap-1">
-                <RefreshCw className="w-3.5 h-3.5" /> Retry
+                <RefreshCw className="w-3.5 h-3.5" /> Tentar novamente
               </button>
             </div>
           )}
 
           <AnimatedButton onClick={handleProcess} loading={processing} className="w-full" size="lg">
-            {processing ? "Creating GIF…" : "Convert to GIF"}
+            {processing ? "Criando GIF…" : "Converter para GIF"}
           </AnimatedButton>
 
-          {processing && <AnimatedProgress value={progress} label="Creating GIF…" done={done} />}
+          {processing && <AnimatedProgress value={progress} label="Criando GIF…" done={done} />}
         </>
       )}
 

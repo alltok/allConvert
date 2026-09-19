@@ -24,14 +24,14 @@ type Panel = "filters" | "color" | "crop";
 interface FilterDef { id: FilterId; label: string; emoji: string; css: string; ffmpeg: string; }
 
 const FILTERS: FilterDef[] = [
-  { id: "none",      label: "Original",    emoji: "🎬", css: "none",                                                              ffmpeg: "" },
-  { id: "cinematic", label: "Cinematic",   emoji: "🎥", css: "contrast(120%) saturate(80%) brightness(90%)",                     ffmpeg: "eq=contrast=1.2:saturation=0.8:brightness=-0.05" },
-  { id: "vintage",   label: "Vintage",     emoji: "📷", css: "sepia(40%) contrast(110%) brightness(95%) saturate(80%)",          ffmpeg: "eq=contrast=1.1:saturation=0.8:brightness=-0.02,colorchannelmixer=.9:.1:.05:0:.05:.85:.1:0:.05:.1:.9" },
-  { id: "vivid",     label: "Vivid",       emoji: "🌈", css: "saturate(180%) contrast(110%)",                                    ffmpeg: "eq=saturation=1.8:contrast=1.1" },
-  { id: "bw",        label: "B&W",         emoji: "⬛", css: "grayscale(100%)",                                                  ffmpeg: "hue=s=0" },
-  { id: "teal",      label: "Teal & Orange",emoji: "🌊", css: "hue-rotate(-15deg) saturate(130%) contrast(110%)",               ffmpeg: "colorbalance=bs=0.15:bm=0.05:gs=-0.05:gm=-0.02:rs=-0.1:rm=-0.05" },
-  { id: "warm",      label: "Warm",        emoji: "🌅", css: "sepia(20%) saturate(130%) brightness(105%)",                      ffmpeg: "colorbalance=rs=0.1:rm=0.05" },
-  { id: "cool",      label: "Cool",        emoji: "❄️", css: "hue-rotate(20deg) saturate(110%)",                                ffmpeg: "colorbalance=bs=0.1:bm=0.05" },
+  { id: "none",      label: "Original",       emoji: "🎬", css: "none",                                                              ffmpeg: "" },
+  { id: "cinematic", label: "Realce Contraste",emoji: "🎥", css: "contrast(120%) saturate(80%) brightness(90%)",                     ffmpeg: "eq=contrast=1.2:saturation=0.8:brightness=-0.05" },
+  { id: "vintage",   label: "Realce Antigo",   emoji: "📷", css: "sepia(40%) contrast(110%) brightness(95%) saturate(80%)",          ffmpeg: "eq=contrast=1.1:saturation=0.8:brightness=-0.02,colorchannelmixer=.9:.1:.05:0:.05:.85:.1:0:.05:.1:.9" },
+  { id: "vivid",     label: "Vívido",          emoji: "🌈", css: "saturate(180%) contrast(110%)",                                    ffmpeg: "eq=saturation=1.8:contrast=1.1" },
+  { id: "bw",        label: "P&B",             emoji: "⬛", css: "grayscale(100%)",                                                  ffmpeg: "hue=s=0" },
+  { id: "teal",      label: "Frio & Quente",   emoji: "🌊", css: "hue-rotate(-15deg) saturate(130%) contrast(110%)",               ffmpeg: "colorbalance=bs=0.15:bm=0.05:gs=-0.05:gm=-0.02:rs=-0.1:rm=-0.05" },
+  { id: "warm",      label: "Quente",          emoji: "🌅", css: "sepia(20%) saturate(130%) brightness(105%)",                      ffmpeg: "colorbalance=rs=0.1:rm=0.05" },
+  { id: "cool",      label: "Frio",            emoji: "❄️", css: "hue-rotate(20deg) saturate(110%)",                                ffmpeg: "colorbalance=bs=0.1:bm=0.05" },
 ];
 
 const ASPECT_PRESETS: { value: AspectRatio; label: string }[] = [
@@ -106,10 +106,10 @@ const ProEditorTool = () => {
 
   const handleProcess = async () => {
     if (!video) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false); setError(null);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "proeditor", toolLabel: "Pro Editor", icon: "🎬", fileName: video.name });
+    const jobId = startJob({ toolId: "proeditor", toolLabel: "Editor Avançado", icon: "🎬", fileName: video.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -157,37 +157,37 @@ const ProEditorTool = () => {
       const blob = await readOutputBlob(ff, "edited.mp4", "video/mp4");
       const url = URL.createObjectURL(blob);
       const base = video.name.replace(/\.[^.]+$/, "");
-      const filename = `${base}-edited.mp4`;
+      const filename = `${base}-editado.mp4`;
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr });
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "proeditor", "Pro Editor");
-      toast({ title: "✓ Exported!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "proeditor", "Editor Avançado");
+      toast({ title: "✓ Exportado!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
   };
 
   const PANELS: { id: Panel; icon: React.ReactNode; label: string }[] = [
-    { id: "filters", icon: <Film className="w-3.5 h-3.5" />, label: "Filters" },
-    { id: "color",   icon: <Sliders className="w-3.5 h-3.5" />, label: "Color" },
-    { id: "crop",    icon: <Crop className="w-3.5 h-3.5" />, label: "Crop" },
+    { id: "filters", icon: <Film className="w-3.5 h-3.5" />, label: "Filtros" },
+    { id: "color",   icon: <Sliders className="w-3.5 h-3.5" />, label: "Cor" },
+    { id: "crop",    icon: <Crop className="w-3.5 h-3.5" />, label: "Corte" },
   ];
 
   return (
     <div className="space-y-4">
       {!video ? (
-        <DropZone onFile={handleVideo} label="Drop video to edit" />
+        <DropZone onFile={handleVideo} label="Solte o vídeo para editar" />
       ) : (
         <div className="space-y-2">
           {/* Split preview toggle */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-              {vidW > 0 ? `${vidW}×${vidH} · Live preview` : "Live preview"}
+              {vidW > 0 ? `${vidW}×${vidH} · Prévia ao vivo` : "Prévia ao vivo"}
             </span>
             <button
               onClick={() => setSplitPreview(v => !v)}
@@ -198,7 +198,7 @@ const ProEditorTool = () => {
                   : "border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-blue-300"
               )}
             >
-              {splitPreview ? "⬛ Split ON" : "◧ Split Preview"}
+              {splitPreview ? "⬛ Comparação ATIVA" : "◧ Comparar Antes/Depois"}
             </button>
           </div>
 
@@ -226,8 +226,8 @@ const ProEditorTool = () => {
               />
               {/* Divider line */}
               <div className="absolute inset-y-0 left-1/2 w-0.5 bg-white/80 shadow-lg pointer-events-none" />
-              <div className="absolute top-2 left-1/4 -translate-x-1/2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full pointer-events-none">Before</div>
-              <div className="absolute top-2 left-3/4 -translate-x-1/2 bg-blue-600/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full pointer-events-none">After</div>
+              <div className="absolute top-2 left-1/4 -translate-x-1/2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full pointer-events-none">Antes</div>
+              <div className="absolute top-2 left-3/4 -translate-x-1/2 bg-blue-600/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full pointer-events-none">Depois</div>
               {/* Close button */}
               <button onClick={reset} className="absolute top-2 right-2 bg-black/60 hover:bg-red-500/80 text-white rounded-full p-1.5 transition-colors z-10">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
@@ -240,7 +240,7 @@ const ProEditorTool = () => {
               previewUrl={previewUrl}
               onReset={reset}
               warning={warning}
-              badge={vidW > 0 ? `Live preview · ${vidW}×${vidH}` : "Live preview"}
+              badge={vidW > 0 ? `Prévia ao vivo · ${vidW}×${vidH}` : "Prévia ao vivo"}
               style={previewStyle}
               onLoadedMetadata={() => {
                 const v = videoRef.current;
@@ -291,16 +291,16 @@ const ProEditorTool = () => {
           {panel === "color" && (
             <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Color Grading</p>
-                <button onClick={resetAll} className="text-xs text-blue-500 hover:underline">Reset all</button>
+                <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Correção de Cor</p>
+                <button onClick={resetAll} className="text-xs text-blue-500 hover:underline">Redefinir tudo</button>
               </div>
               {[
-                { label: "Brightness", value: brightness, set: setBrightness, min: 50, max: 150, default: 100 },
-                { label: "Contrast",   value: contrast,   set: setContrast,   min: 50, max: 200, default: 100 },
-                { label: "Saturation", value: saturation, set: setSaturation, min: 0,  max: 300, default: 100 },
-                { label: "Exposure",   value: exposure,   set: setExposure,   min: -50, max: 50, default: 0 },
-                { label: "Temperature",value: temperature,set: setTemperature,min: -100,max: 100,default: 0 },
-                { label: "Gamma",      value: gamma,      set: setGamma,      min: 50, max: 200, default: 100 },
+                { label: "Brilho",       value: brightness, set: setBrightness, min: 50, max: 150, default: 100 },
+                { label: "Contraste",    value: contrast,   set: setContrast,   min: 50, max: 200, default: 100 },
+                { label: "Saturação",    value: saturation, set: setSaturation, min: 0,  max: 300, default: 100 },
+                { label: "Exposição",    value: exposure,   set: setExposure,   min: -50, max: 50, default: 0 },
+                { label: "Temperatura",  value: temperature,set: setTemperature,min: -100,max: 100,default: 0 },
+                { label: "Gama",         value: gamma,      set: setGamma,      min: 50, max: 200, default: 100 },
               ].map(({ label, value, set, min, max, default: def }) => (
                 <div key={label} className="space-y-1">
                   <div className="flex justify-between items-center">
@@ -319,7 +319,7 @@ const ProEditorTool = () => {
           {/* Crop panel */}
           {panel === "crop" && (
             <div className="space-y-3">
-              <Label className="text-xs text-gray-500">Aspect Ratio</Label>
+              <Label className="text-xs text-gray-500">Proporção</Label>
               <div className="grid grid-cols-5 gap-2">
                 {ASPECT_PRESETS.map(p => (
                   <motion.button key={p.value} onClick={() => setAspect(p.value)}
@@ -336,17 +336,17 @@ const ProEditorTool = () => {
               </div>
               {aspect !== "none" && vidW > 0 && (
                 <p className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2">
-                  Will crop to {aspect} ratio — centered automatically.
+                  Será cortado para a proporção {aspect} — centralizado automaticamente.
                 </p>
               )}
             </div>
           )}
 
           <AnimatedButton onClick={handleProcess} loading={processing} className="w-full" size="lg">
-            {processing ? "Exporting…" : "Export Edited Video"}
+            {processing ? "Exportando…" : "Exportar Vídeo Editado"}
           </AnimatedButton>
 
-          {processing && <AnimatedProgress value={progress} label="Applying effects…" done={done} />}
+          {processing && <AnimatedProgress value={progress} label="Aplicando efeitos…" done={done} />}
           {error && <ErrorRecovery error={error} onRetry={() => setError(null)} />}
         </>
       )}

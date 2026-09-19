@@ -63,11 +63,11 @@ const MergeTool = () => {
   const onDragEnd = () => { dragIdx.current = null; };
 
   const handleMerge = async () => {
-    if (files.length < 2) { toast({ variant: "destructive", title: "Add at least 2 videos" }); return; }
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (files.length < 2) { toast({ variant: "destructive", title: "Adicione pelo menos 2 vídeos" }); return; }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false); setError(null);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "merge", toolLabel: "Merge", icon: "🔗", fileName: `${files.length} videos` });
+    const jobId = startJob({ toolId: "merge", toolLabel: "Juntar", icon: "🔗", fileName: `${files.length} vídeos` });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -104,9 +104,9 @@ const MergeTool = () => {
       const blob = await readOutputBlob(ff, "merged.mp4", "video/mp4");
       const url = URL.createObjectURL(blob);
       setDone(true);
-      setResult({ url, filename: "merged-allconvert.mp4", size: formatBytes(blob.size) });
-      finishJob(jobId, { url, name: "merged-allconvert.mp4", size: formatBytes(blob.size), rawSize: blob.size }, "merge", "Merge");
-      toast({ title: "✓ Merged!", description: `${files.length} videos combined (stream copy).` });
+      setResult({ url, filename: "juntado-allconvert.mp4", size: formatBytes(blob.size) });
+      finishJob(jobId, { url, name: "juntado-allconvert.mp4", size: formatBytes(blob.size), rawSize: blob.size }, "merge", "Juntar");
+      toast({ title: "✓ Vídeos juntados!", description: `${files.length} vídeos combinados (cópia direta).` });
 
     } catch (firstErr) {
       // Re-encode path: normalize all clips to same codec/resolution then concat
@@ -137,15 +137,15 @@ const MergeTool = () => {
         const blob = await readOutputBlob(ff, "merged.mp4", "video/mp4");
         const url = URL.createObjectURL(blob);
         setDone(true);
-        setResult({ url, filename: "merged-allconvert.mp4", size: formatBytes(blob.size) });
-        finishJob(jobId, { url, name: "merged-allconvert.mp4", size: formatBytes(blob.size), rawSize: blob.size }, "merge", "Merge");
-        toast({ title: "✓ Merged!", description: `${files.length} videos combined (re-encoded for compatibility).` });
+        setResult({ url, filename: "juntado-allconvert.mp4", size: formatBytes(blob.size) });
+        finishJob(jobId, { url, name: "juntado-allconvert.mp4", size: formatBytes(blob.size), rawSize: blob.size }, "merge", "Juntar");
+        toast({ title: "✓ Vídeos juntados!", description: `${files.length} vídeos combinados (reencodados para compatibilidade).` });
 
       } catch (e) {
         const msg = String(e);
         setError(msg);
         failJob(jobId, msg);
-        toast({ variant: "destructive", title: "Merge failed", description: msg });
+        toast({ variant: "destructive", title: "Falha ao juntar", description: msg });
       }
     } finally {
       ff.off("progress", handler); setProcessing(false);
@@ -160,8 +160,8 @@ const MergeTool = () => {
       <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-6 text-center hover:border-blue-400 dark:hover:border-blue-600 transition-colors bg-gray-50/60 dark:bg-gray-900/40">
         <label className="cursor-pointer flex flex-col items-center gap-2">
           <UploadCloud className="w-8 h-8 text-gray-400" />
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Click to add videos</span>
-          <span className="text-xs text-gray-400">Add multiple — drag rows to reorder merge sequence</span>
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Clique para adicionar vídeos</span>
+          <span className="text-xs text-gray-400">Adicione vários — arraste as linhas para reordenar a sequência</span>
           <input type="file" accept="video/*" multiple className="hidden" onChange={addFiles} />
         </label>
       </div>
@@ -170,7 +170,7 @@ const MergeTool = () => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-              Merge order ({files.length} files)
+              Ordem de junção ({files.length} arquivos)
             </p>
             {files.length >= 2 && (
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
@@ -178,7 +178,7 @@ const MergeTool = () => {
                   ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                   : "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
               }`}>
-                {fastPath ? "⚡ Stream copy (fast)" : "🔄 Will re-encode (different formats)"}
+                {fastPath ? "⚡ Cópia direta (rápido)" : "🔄 Será reencodado (formatos diferentes)"}
               </span>
             )}
           </div>
@@ -221,7 +221,7 @@ const MergeTool = () => {
       {files.length >= 2 && !fastPath && (
         <div className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl px-3 py-2.5">
           <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-          Different formats detected — videos will be re-encoded to H.264 MP4 for compatibility. This takes longer.
+          Formatos diferentes detectados — os vídeos serão reencodados para H.264 MP4 para garantir compatibilidade. Isso leva mais tempo.
         </div>
       )}
 
@@ -230,28 +230,28 @@ const MergeTool = () => {
         <div className="flex items-start gap-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
           <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-red-700 dark:text-red-400">Merge failed</p>
+            <p className="text-sm font-semibold text-red-700 dark:text-red-400">Falha ao juntar</p>
             <p className="text-xs text-red-500 mt-0.5 break-words">{error}</p>
           </div>
           <button onClick={() => setError(null)}
             className="shrink-0 text-xs text-red-500 hover:text-red-700 flex items-center gap-1">
-            <RefreshCw className="w-3.5 h-3.5" /> Retry
+            <RefreshCw className="w-3.5 h-3.5" /> Tentar novamente
           </button>
         </div>
       )}
 
       {files.length >= 2 && !result && (
         <AnimatedButton onClick={handleMerge} loading={processing} className="w-full" size="lg">
-          {processing ? "Merging…" : (
+          {processing ? "Juntando…" : (
             <span className="flex items-center gap-2">
               {fastPath && <Zap className="w-4 h-4" />}
-              {`Merge ${files.length} Videos`}
+              {`Juntar ${files.length} Vídeos`}
             </span>
           )}
         </AnimatedButton>
       )}
 
-      {processing && <AnimatedProgress value={progress} label="Merging videos…" done={done} />}
+      {processing && <AnimatedProgress value={progress} label="Juntando vídeos…" done={done} />}
 
       {result && (
         <ResultCard url={result.url} filename={result.filename} size={result.size}

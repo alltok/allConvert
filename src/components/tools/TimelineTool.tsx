@@ -89,10 +89,10 @@ const TimelineTool = () => {
 
   const handleProcess = async () => {
     if (!video || !segments.length) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "timeline", toolLabel: "Timeline", icon: "✂️", fileName: video.name });
+    const jobId = startJob({ toolId: "timeline", toolLabel: "Linha do Tempo", icon: "✂️", fileName: video.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -152,16 +152,16 @@ const TimelineTool = () => {
       await safeDelete(ff, `input.${vExt}`);
       const blob = await readOutputBlob(ff, finalFile, "video/mp4");
       const url = URL.createObjectURL(blob);
-      const filename = `${base}-timeline.mp4`;
+      const filename = `${base}-trecho.mp4`;
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr });
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "timeline", "Timeline");
-      toast({ title: "✓ Done!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "timeline", "Linha do Tempo");
+      toast({ title: "✓ Concluído!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -170,7 +170,7 @@ const TimelineTool = () => {
   return (
     <div className="space-y-4">
       {!video ? (
-        <DropZone onFile={handleVideo} label="Drop video to edit timeline" />
+        <DropZone onFile={handleVideo} label="Solte o vídeo para editar a linha do tempo" />
       ) : (
         <VideoPreview
           ref={videoRef}
@@ -178,7 +178,7 @@ const TimelineTool = () => {
           previewUrl={previewUrl}
           onReset={reset}
           warning={warning}
-          badge={duration > 0 ? `${fmt(duration)} total` : undefined}
+          badge={duration > 0 ? `${fmt(duration)} no total` : undefined}
           onLoadedMetadata={onMetadata}
         />
       )}
@@ -189,10 +189,10 @@ const TimelineTool = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="text-xs text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                <Scissors className="w-3.5 h-3.5" /> Segments ({segments.length})
+                <Scissors className="w-3.5 h-3.5" /> Trechos ({segments.length})
               </Label>
               <AnimatedButton size="xs" variant="outline" onClick={addSegment}>
-                <Plus className="w-3 h-3" /> Add
+                <Plus className="w-3 h-3" /> Adicionar
               </AnimatedButton>
             </div>
 
@@ -213,7 +213,7 @@ const TimelineTool = () => {
               <div key={seg.id} className="border border-gray-200 dark:border-gray-700 rounded-xl p-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Segment {i + 1} — {fmt(seg.end - seg.start)}
+                    Trecho {i + 1} — {fmt(seg.end - seg.start)}
                   </span>
                   {segments.length > 1 && (
                     <button onClick={() => removeSegment(seg.id)} className="text-red-400 hover:text-red-600 transition-colors">
@@ -222,16 +222,16 @@ const TimelineTool = () => {
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 font-mono">
-                  <span>Start: {fmt(seg.start)}</span>
-                  <span>End: {fmt(seg.end)}</span>
+                  <span>Início: {fmt(seg.start)}</span>
+                  <span>Fim: {fmt(seg.end)}</span>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] text-gray-400">Start</Label>
+                  <Label className="text-[10px] text-gray-400">Início</Label>
                   <Slider min={0} max={duration} step={0.1} value={[seg.start]}
                     onValueChange={([v]) => updateSegment(seg.id, { start: Math.min(v, seg.end - 0.5) })} />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] text-gray-400">End</Label>
+                  <Label className="text-[10px] text-gray-400">Fim</Label>
                   <Slider min={0} max={duration} step={0.1} value={[seg.end]}
                     onValueChange={([v]) => updateSegment(seg.id, { end: Math.max(v, seg.start + 0.5) })} />
                 </div>
@@ -242,7 +242,7 @@ const TimelineTool = () => {
           {/* Speed */}
           <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Speed</Label>
+              <Label className="text-sm font-medium">Velocidade</Label>
               <span className="text-lg font-bold text-blue-600">{speed}x</span>
             </div>
             <Slider min={0.25} max={4} step={0.25} value={[speed]} onValueChange={([v]) => setSpeed(v)} />
@@ -262,7 +262,7 @@ const TimelineTool = () => {
             <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <Switch id="loop-t" checked={loop} onCheckedChange={setLoop} />
-                <Label htmlFor="loop-t" className="text-sm cursor-pointer">🔁 Loop</Label>
+                <Label htmlFor="loop-t" className="text-sm cursor-pointer">🔁 Repetir</Label>
               </div>
               {loop && (
                 <div className="flex gap-2 flex-wrap">
@@ -279,16 +279,16 @@ const TimelineTool = () => {
             <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-3">
               <div className="flex items-center gap-2">
                 <Switch id="mute-t" checked={muteAudio} onCheckedChange={setMuteAudio} />
-                <Label htmlFor="mute-t" className="text-sm cursor-pointer">🔇 Remove audio</Label>
+                <Label htmlFor="mute-t" className="text-sm cursor-pointer">🔇 Remover áudio</Label>
               </div>
             </div>
           </div>
 
           <AnimatedButton onClick={handleProcess} loading={processing} className="w-full" size="lg">
-            {processing ? "Processing…" : `Export ${segments.length} segment${segments.length > 1 ? "s" : ""}${loop ? ` × ${loopCount}` : ""}`}
+            {processing ? "Processando…" : `Exportar ${segments.length} trecho${segments.length > 1 ? "s" : ""}${loop ? ` × ${loopCount}` : ""}`}
           </AnimatedButton>
 
-          {processing && <AnimatedProgress value={progress} label="Processing timeline…" done={done} />}
+          {processing && <AnimatedProgress value={progress} label="Processando linha do tempo…" done={done} />}
           {error && <ErrorRecovery error={error} onRetry={() => setError(null)} />}
         </>
       )}

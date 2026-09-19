@@ -1,18 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://mianhassam96.github.io/MianConvert/</loc>
+    <loc>https://alltok.github.io/allConvert/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mianhassam96.github.io/MianConvert/about</loc>
+    <loc>https://alltok.github.io/allConvert/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mianhassam96.github.io/MianConvert/contact</loc>
+    <loc>https://alltok.github.io/allConvert/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://alltok.github.io/allConvert/converter-dvr-para-mp4</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://alltok.github.io/allConvert/compactar-video-processo-eletronico</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://alltok.github.io/allConvert/preparar-video-para-pericia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://alltok.github.io/allConvert/extrair-frame-video-evidencia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://alltok.github.io/allConvert/cortar-trecho-video-seguranca</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>

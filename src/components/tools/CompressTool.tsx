@@ -25,18 +25,18 @@ type Res = "original" | "1080p" | "720p" | "480p" | "360p";
 type Mode = "quick" | "advanced";
 
 const QUALITY_LABELS: Record<Crf, string> = {
-  "18": "Best quality — large file",
-  "23": "High quality",
-  "28": "Balanced — recommended",
-  "33": "Smaller file",
-  "38": "Maximum compression",
+  "18": "Melhor qualidade — arquivo grande",
+  "23": "Alta qualidade",
+  "28": "Balanceado — recomendado",
+  "33": "Arquivo menor",
+  "38": "Compactação máxima",
 };
 
 const QUICK_OPTIONS = [
-  { id: "smallest", icon: "📦", label: "Smallest File",   desc: "Max compression, 480p" },
-  { id: "balanced", icon: "⚖️", label: "Balanced",        desc: "Good quality, 720p" },
-  { id: "quality",  icon: "✨", label: "High Quality",    desc: "Near lossless, original size" },
-  { id: "mobile",   icon: "📱", label: "Mobile Friendly", desc: "Optimized for phones, 360p" },
+  { id: "smallest", icon: "📦", label: "Menor Arquivo",       desc: "Compactação máxima, 480p" },
+  { id: "balanced", icon: "⚖️", label: "Balanceado",          desc: "Boa qualidade, 720p" },
+  { id: "quality",  icon: "✨", label: "Alta Qualidade",      desc: "Quase sem perdas, tamanho original" },
+  { id: "mobile",   icon: "📱", label: "Envio Rápido",        desc: "Otimizado para celular, 360p" },
 ];
 
 const CompressTool = () => {
@@ -90,11 +90,11 @@ const CompressTool = () => {
 
   const handleCompress = async () => {
     if (!file) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…", description: "First run takes ~5s." }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…", description: "A primeira vez leva ~5s." }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false);
     const processStart = Date.now();
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "compress", toolLabel: "Compress", icon: "📦", fileName: file.name });
+    const jobId = startJob({ toolId: "compress", toolLabel: "Compactar", icon: "📦", fileName: file.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100);
       setProgress(pct);
@@ -126,18 +126,18 @@ const CompressTool = () => {
       const blob = await readOutputBlob(ff, "output.mp4", "video/mp4");
       const url = URL.createObjectURL(blob);
       const base = file.name.replace(/\.[^.]+$/, "");
-      const saved = file.size > blob.size ? ` — saved ${formatBytes(file.size - blob.size)}` : "";
-      const filename = `${base}-compressed.mp4`;
+      const saved = file.size > blob.size ? ` — economizou ${formatBytes(file.size - blob.size)}` : "";
+      const filename = `${base}-compactado.mp4`;
       const sizeStr = `${formatBytes(blob.size)}${saved}`;
       setDone(true);
       setResult({ url, filename, size: sizeStr, rawSize: blob.size, startTime: processStart });
       sessionStore.markDone("compress");
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "compress", "Compress");
-      toast({ title: "✓ Compressed!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "compress", "Compactar");
+      toast({ title: "✓ Compactado!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Compression failed", description: msg });
+      toast({ variant: "destructive", title: "Falha na compactação", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -161,13 +161,13 @@ const CompressTool = () => {
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             )}>
             {m === "quick" ? <Zap className="w-3.5 h-3.5" /> : <Settings2 className="w-3.5 h-3.5" />}
-            {m === "quick" ? "Quick Mode" : "Advanced Mode"}
+            {m === "quick" ? "Modo Rápido" : "Modo Avançado"}
           </button>
         ))}
       </div>
 
       {!file ? (
-        <DropZone onFile={handleFile} label="Drop video to compress" />
+        <DropZone onFile={handleFile} label="Solte o vídeo para compactar" />
       ) : (
         <VideoPreview ref={videoRef} file={file} previewUrl={previewUrl} onReset={reset} warning={warning} />
       )}
@@ -179,7 +179,7 @@ const CompressTool = () => {
               initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
               className="space-y-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Choose compression level:</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Escolha o nível de compactação:</p>
               <div className="grid grid-cols-2 gap-3">
                 {QUICK_OPTIONS.map(p => (
                   <motion.button key={p.id}
@@ -203,7 +203,7 @@ const CompressTool = () => {
                 ))}
               </div>
               <AnimatedButton onClick={handleCompress} loading={processing} className="w-full" size="lg">
-                {processing ? "Compressing…" : "Compress Video"}
+                {processing ? "Compactando…" : "Compactar Vídeo"}
               </AnimatedButton>
             </motion.div>
           ) : (
@@ -229,7 +229,7 @@ const CompressTool = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs text-gray-500">Quality Level</Label>
+                  <Label className="text-xs text-gray-500">Nível de Qualidade</Label>
                   <Select value={crf} onValueChange={v => { setCrf(v as Crf); setActivePreset(""); }}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -240,36 +240,36 @@ const CompressTool = () => {
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs text-gray-500">Resolution</Label>
+                  <Label className="text-xs text-gray-500">Resolução</Label>
                   <Select value={res} onValueChange={v => { setRes(v as Res); setActivePreset(""); }}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="original">Keep original</SelectItem>
+                      <SelectItem value="original">Manter original</SelectItem>
                       <SelectItem value="1080p">1080p — Full HD</SelectItem>
                       <SelectItem value="720p">720p — HD</SelectItem>
-                      <SelectItem value="480p">480p — Standard</SelectItem>
-                      <SelectItem value="360p">360p — Mobile</SelectItem>
+                      <SelectItem value="480p">480p — Padrão</SelectItem>
+                      <SelectItem value="360p">360p — Celular</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs text-gray-500">Processing speed</Label>
+                  <Label className="text-xs text-gray-500">Velocidade de processamento</Label>
                   <Select value={preset} onValueChange={v => setPreset(v as Preset)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ultrafast">Ultrafast — larger file</SelectItem>
-                      <SelectItem value="fast">Fast — recommended</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="slow">Slow — smallest file</SelectItem>
+                      <SelectItem value="ultrafast">Ultrarrápido — arquivo maior</SelectItem>
+                      <SelectItem value="fast">Rápido — recomendado</SelectItem>
+                      <SelectItem value="medium">Médio</SelectItem>
+                      <SelectItem value="slow">Lento — menor arquivo</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl px-4 py-3 text-xs text-blue-700 dark:text-blue-300">
-                💡 Balanced + Fast is the sweet spot. Lower quality level = better compression but smaller file.
+                💡 Balanceado + Rápido é o ponto ideal. Nível de qualidade menor = mais compactação, arquivo menor.
               </div>
               <AnimatedButton onClick={handleCompress} loading={processing} className="w-full" size="lg">
-                {processing ? "Compressing…" : "Compress Video"}
+                {processing ? "Compactando…" : "Compactar Vídeo"}
               </AnimatedButton>
             </motion.div>
           )}
@@ -284,8 +284,8 @@ const CompressTool = () => {
           {savingsPct > 0 && (
             <div className="glass-card p-4 space-y-3">
               <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                📊 Size comparison
-                <span className="text-green-500 font-black">↓{savingsPct}% smaller</span>
+                📊 Comparação de tamanho
+                <span className="text-green-500 font-black">↓{savingsPct}% menor</span>
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
@@ -296,7 +296,7 @@ const CompressTool = () => {
                   <span className="text-xs text-gray-500 w-16 text-right shrink-0">{formatBytes(originalSize)}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-green-600 dark:text-green-400 w-20 shrink-0 font-semibold">Compressed</span>
+                  <span className="text-xs text-green-600 dark:text-green-400 w-20 shrink-0 font-semibold">Compactado</span>
                   <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-green-500 rounded-full"

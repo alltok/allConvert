@@ -1,11 +1,18 @@
 /**
- * Caption Engine
+ * Motor de Legendas
  *
- * Uses the Web Speech API (SpeechRecognition) for browser-native
- * speech-to-text — zero download, instant, works in Chrome/Edge/Safari.
+ * Usa a Web Speech API (SpeechRecognition) nativa do navegador para
+ * transcrição de fala — sem download adicional, funciona no Chrome/Edge/Safari.
  *
- * Falls back gracefully when not supported.
+ * IMPORTANTE: no Chrome/Edge, a Web Speech API envia o áudio capturado a
+ * servidores do Google para reconhecimento. Isso quebra a promessa de
+ * "100% local" — evite usar este recurso com material sigiloso ou sob sigilo
+ * de investigação. Considere revisar o áudio manualmente nesses casos.
+ *
+ * Com fallback gracioso quando não suportado.
  */
+
+import { FONT_FILE } from "@/lib/ffmpeg-pipeline";
 
 export interface CaptionSegment {
   start: number;
@@ -29,13 +36,13 @@ export interface CaptionStyle {
   ffmpegExtra?: string;
 }
 
-// ── Caption Style Presets ─────────────────────────────────────────────────────
+// ── Estilos de Legenda ─────────────────────────────────────────────────────────
 export const CAPTION_STYLES: CaptionStyle[] = [
   {
-    id: "tiktok-bold",
-    label: "TikTok Bold",
-    platform: "TikTok",
-    emoji: "📱",
+    id: "alto-contraste",
+    label: "Alto Contraste",
+    platform: "Geral",
+    emoji: "⬜",
     fontSize: 42,
     color: "#ffffff",
     bgColor: "#000000",
@@ -45,23 +52,23 @@ export const CAPTION_STYLES: CaptionStyle[] = [
     uppercase: true,
   },
   {
-    id: "reel-glow",
-    label: "Reel Glow",
-    platform: "Instagram",
-    emoji: "📸",
-    fontSize: 36,
+    id: "discreto",
+    label: "Discreto",
+    platform: "Geral",
+    emoji: "💬",
+    fontSize: 32,
     color: "#ffffff",
     bgColor: "#000000",
     bgOpacity: 0.4,
     position: "bottom",
-    bold: true,
+    bold: false,
     uppercase: false,
   },
   {
-    id: "youtube-clean",
-    label: "YouTube Clean",
-    platform: "YouTube",
-    emoji: "▶️",
+    id: "documento",
+    label: "Documento/Laudo",
+    platform: "Perícia",
+    emoji: "📄",
     fontSize: 28,
     color: "#ffffff",
     bgColor: "#000000",
@@ -71,36 +78,36 @@ export const CAPTION_STYLES: CaptionStyle[] = [
     uppercase: false,
   },
   {
-    id: "podcast-minimal",
-    label: "Podcast Minimal",
-    platform: "Podcast",
-    emoji: "🎙",
+    id: "identificacao",
+    label: "Identificação",
+    platform: "Câmera/Data",
+    emoji: "📍",
     fontSize: 24,
     color: "#ffffff",
     bgColor: "#000000",
-    bgOpacity: 0.3,
+    bgOpacity: 0.7,
+    position: "top",
+    bold: false,
+    uppercase: false,
+  },
+  {
+    id: "narracao",
+    label: "Narração",
+    platform: "Depoimento",
+    emoji: "🎙",
+    fontSize: 26,
+    color: "#ffffff",
+    bgColor: "#000000",
+    bgOpacity: 0.5,
     position: "bottom",
     bold: false,
     uppercase: false,
   },
   {
-    id: "gaming-neon",
-    label: "Gaming Neon",
-    platform: "Gaming",
-    emoji: "🎮",
-    fontSize: 38,
-    color: "#00ffff",
-    bgColor: "#000000",
-    bgOpacity: 0.7,
-    position: "bottom",
-    bold: true,
-    uppercase: true,
-  },
-  {
-    id: "news-lower",
-    label: "News Lower Third",
-    platform: "News",
-    emoji: "📰",
+    id: "oficial",
+    label: "Oficial",
+    platform: "Registro formal",
+    emoji: "🛡",
     fontSize: 26,
     color: "#ffffff",
     bgColor: "#0066cc",
@@ -143,10 +150,10 @@ export interface TranscribeOptions {
 }
 
 /**
- * Transcribe audio from a video/audio file using Web Speech API.
- * Plays the media element and captures speech recognition results.
+ * Transcreve o áudio de um vídeo/áudio usando a Web Speech API.
+ * Reproduz o elemento de mídia e captura os resultados do reconhecimento de fala.
  *
- * Returns array of CaptionSegments.
+ * Retorna um array de CaptionSegments.
  */
 export const transcribeWithSpeechAPI = (
   mediaEl: HTMLVideoElement | HTMLAudioElement,
@@ -157,14 +164,14 @@ export const transcribeWithSpeechAPI = (
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      reject(new Error("Speech recognition not supported in this browser. Use Chrome or Edge."));
+      reject(new Error("Reconhecimento de voz não é suportado neste navegador. Use Chrome ou Edge."));
       return;
     }
 
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = opts.language ?? "en-US";
+    recognition.lang = opts.language ?? "pt-BR";
     recognition.maxAlternatives = 1;
 
     const segments: CaptionSegment[] = [];
@@ -195,7 +202,7 @@ export const transcribeWithSpeechAPI = (
     recognition.onerror = (event: any) => {
       if (event.error === "no-speech") return; // ignore silence
       if (event.error === "aborted") return;
-      reject(new Error(`Speech recognition error: ${event.error}`));
+      reject(new Error(`Erro no reconhecimento de voz: ${event.error}`));
     };
 
     recognition.onend = () => {
@@ -218,7 +225,7 @@ export const transcribeWithSpeechAPI = (
       mediaEl.currentTime = 0;
       mediaEl.play().catch(() => {
         recognition.stop();
-        reject(new Error("Could not play media for transcription."));
+        reject(new Error("Não foi possível reproduzir a mídia para transcrição."));
       });
     } catch (e) {
       reject(e);
@@ -243,6 +250,6 @@ export const buildCaptionFilter = (
     if (style.uppercase) text = text.toUpperCase();
     const escaped = text.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/:/g, "\\:");
     const boxOpacity = style.bgOpacity.toFixed(2);
-    return `drawtext=text='${escaped}':fontsize=${style.fontSize}:fontcolor=0x${colorHex}:x=(w-tw)/2:y=${y}:enable='between(t,${seg.start.toFixed(3)},${seg.end.toFixed(3)})':box=1:boxcolor=0x${bgHex}@${boxOpacity}:boxborderw=8${style.bold ? ":font=bold" : ""}`;
+    return `drawtext=fontfile=${FONT_FILE}:text='${escaped}':fontsize=${style.fontSize}:fontcolor=0x${colorHex}:x=(w-tw)/2:y=${y}:enable='between(t,${seg.start.toFixed(3)},${seg.end.toFixed(3)})':box=1:boxcolor=0x${bgHex}@${boxOpacity}:boxborderw=8${style.bold ? ":font=bold" : ""}`;
   });
 };

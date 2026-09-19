@@ -33,53 +33,53 @@ const buildAnalysis = (file: File, duration: number, width: number, height: numb
 
   // Format detection
   if (["avi", "mov", "mkv"].includes(ext)) {
-    results.push({ icon: "🔄", text: `Detected ${ext.toUpperCase()} format`, highlight: "MP4 recommended", type: "action" });
+    results.push({ icon: "🔄", text: `Formato ${ext.toUpperCase()} detectado`, highlight: "MP4 recomendado", type: "action" });
   } else if (ext === "mp4") {
-    results.push({ icon: "✓", text: "MP4 format detected", highlight: "Best compatibility", type: "good" });
+    results.push({ icon: "✓", text: "Formato MP4 detectado", highlight: "Máxima compatibilidade", type: "good" });
   }
 
   // Resolution
   if (width > 0 && height > 0) {
     if (width >= 3840) {
-      results.push({ icon: "🎬", text: `4K resolution (${width}×${height})`, highlight: "Can resize to 1080p", type: "action" });
+      results.push({ icon: "🎬", text: `Resolução 4K (${width}×${height})`, highlight: "Pode reduzir para 1080p", type: "action" });
     } else if (width >= 1920) {
-      results.push({ icon: "✓", text: `Full HD ${width}×${height}`, highlight: "Great quality", type: "good" });
+      results.push({ icon: "✓", text: `Full HD ${width}×${height}`, highlight: "Ótima qualidade", type: "good" });
     } else {
-      results.push({ icon: "📐", text: `${width}×${height} resolution`, type: "info" });
+      results.push({ icon: "📐", text: `Resolução ${width}×${height}`, type: "info" });
     }
   }
 
   // Aspect ratio
   if (isPortrait) {
-    results.push({ icon: "📱", text: "Vertical video detected", highlight: "TikTok/Reels ready", type: "good" });
+    results.push({ icon: "📱", text: "Vídeo vertical detectado", highlight: "Formato retrato", type: "good" });
   } else if (width > 0 && Math.abs(width / height - 16 / 9) < 0.05) {
-    results.push({ icon: "▶️", text: "16:9 widescreen", highlight: "YouTube ready", type: "good" });
+    results.push({ icon: "🖥", text: "16:9 widescreen", highlight: "Formato padrão", type: "good" });
   }
 
   // File size
   if (mb > 100) {
-    results.push({ icon: "📦", text: `${formatBytes(file.size)} file size`, highlight: `~${compressionSavings}% compression available`, type: "action" });
+    results.push({ icon: "📦", text: `${formatBytes(file.size)} de tamanho`, highlight: `~${compressionSavings}% de compactação disponível`, type: "action" });
   } else if (mb > 20) {
-    results.push({ icon: "📦", text: `${formatBytes(file.size)} file size`, highlight: "Can compress for sharing", type: "info" });
+    results.push({ icon: "📦", text: `${formatBytes(file.size)} de tamanho`, highlight: "Pode compactar para envio", type: "info" });
   } else {
-    results.push({ icon: "✓", text: `${formatBytes(file.size)} — compact file`, type: "good" });
+    results.push({ icon: "✓", text: `${formatBytes(file.size)} — arquivo compacto`, type: "good" });
   }
 
   // Duration
   if (duration > 0) {
     if (duration > 600) {
-      results.push({ icon: "✂️", text: `${Math.round(duration / 60)}m video`, highlight: "Consider trimming", type: "action" });
+      results.push({ icon: "✂️", text: `Vídeo de ${Math.round(duration / 60)}min`, highlight: "Considere cortar o trecho relevante", type: "action" });
     } else if (duration > 60) {
       const m = Math.floor(duration / 60);
       const s = Math.round(duration % 60);
-      results.push({ icon: "⏱", text: `${m}m ${s}s duration`, type: "info" });
+      results.push({ icon: "⏱", text: `Duração de ${m}min ${s}s`, type: "info" });
     } else {
-      results.push({ icon: "⚡", text: `${Math.round(duration)}s clip`, highlight: "Perfect for social", type: "good" });
+      results.push({ icon: "⚡", text: `Clipe de ${Math.round(duration)}s`, highlight: "Pronto para revisão", type: "good" });
     }
   }
 
-  // AI captions availability
-  results.push({ icon: "✨", text: "AI captions available", highlight: "TikTok/Reel styles", type: "action" });
+  // Transcription availability
+  results.push({ icon: "✨", text: "Transcrição de áudio disponível", highlight: "Experimental", type: "action" });
 
   return results.slice(0, 5);
 };
@@ -114,11 +114,11 @@ const InstantAnalysis = ({ file, duration, width, height, onOpen }: InstantAnaly
             <Zap className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
           </div>
           <p className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
-            Instant Analysis
+            Análise Instantânea
           </p>
           <span className="ml-auto text-[10px] text-green-600 dark:text-green-400 font-semibold flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            Ready
+            Pronto
           </span>
         </div>
 
@@ -157,15 +157,15 @@ const InstantAnalysis = ({ file, duration, width, height, onOpen }: InstantAnaly
         <div className="flex flex-wrap gap-2 pt-1 border-t border-gray-100 dark:border-gray-800">
           <button onClick={() => onOpen("autooptimize")}
             className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-            <Zap className="w-3 h-3" /> Auto Optimize
+            <Zap className="w-3 h-3" /> Otimizar Automaticamente
           </button>
           <button onClick={() => onOpen("aicaption")}
             className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-            ✨ Add Captions
+            ✨ Transcrever Áudio
           </button>
           <button onClick={() => onOpen("compress")}
             className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-blue-300 transition-colors">
-            📦 Compress
+            📦 Compactar
           </button>
         </div>
       </motion.div>

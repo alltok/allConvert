@@ -29,23 +29,23 @@ type Rotate = "none" | "90" | "180" | "270" | "fliph" | "flipv";
 type Mode = "quick" | "advanced";
 
 const QUALITY_LABELS: Record<Quality, string> = {
-  high: "Best quality (larger file)",
-  medium: "Balanced (recommended)",
-  low: "Smaller file (lower quality)",
+  high: "Melhor qualidade (arquivo maior)",
+  medium: "Balanceado (recomendado)",
+  low: "Arquivo menor (qualidade reduzida)",
 };
 
 const FORMAT_GROUPS = [
-  { group: "Video", opts: [["mp4","MP4"],["webm","WebM"],["avi","AVI"],["mov","MOV"],["mkv","MKV"],["muted","Remove Audio"]] },
-  { group: "Audio only", opts: [["mp3","MP3"],["wav","WAV"]] },
+  { group: "Vídeo", opts: [["mp4","MP4"],["webm","WebM"],["avi","AVI"],["mov","MOV"],["mkv","MKV"],["muted","Remover Áudio"]] },
+  { group: "Somente áudio", opts: [["mp3","MP3"],["wav","WAV"]] },
 ];
 
 const ROTATE_OPTS: { value: Rotate; label: string }[] = [
-  { value: "none",  label: "No rotation" },
-  { value: "90",    label: "Rotate 90°" },
-  { value: "180",   label: "Rotate 180°" },
-  { value: "270",   label: "Rotate 270°" },
-  { value: "fliph", label: "Flip horizontal" },
-  { value: "flipv", label: "Flip vertical" },
+  { value: "none",  label: "Sem rotação" },
+  { value: "90",    label: "Girar 90°" },
+  { value: "180",   label: "Girar 180°" },
+  { value: "270",   label: "Girar 270°" },
+  { value: "fliph", label: "Inverter horizontal" },
+  { value: "flipv", label: "Inverter vertical" },
 ];
 
 const getRotateFilter = (r: Rotate): string | null => {
@@ -62,12 +62,12 @@ const isAudio = (f: Fmt) => f === "mp3" || f === "wav";
 
 // Quick Mode preset cards
 const QUICK_PRESETS = [
-  { id: "tiktok",    icon: "📱", label: "TikTok",        desc: "MP4 · 720p · vertical-ready" },
-  { id: "youtube",   icon: "▶️", label: "YouTube HD",    desc: "MP4 · 1080p · high quality" },
-  { id: "whatsapp",  icon: "💬", label: "WhatsApp",      desc: "MP4 · 480p · small file" },
-  { id: "instagram", icon: "📸", label: "Instagram",     desc: "MP4 · 720p · balanced" },
-  { id: "web",       icon: "🌐", label: "Web (WebM)",    desc: "WebM · 720p · fast loading" },
-  { id: "audio_mp3", icon: "🎵", label: "Audio MP3",     desc: "Extract audio only" },
+  { id: "evidencia_hd", icon: "🔎", label: "Evidência HD",     desc: "MP4 · 1080p · máxima qualidade" },
+  { id: "processo",     icon: "📎", label: "Processo",         desc: "MP4 · 720p · pronto para anexar" },
+  { id: "whatsapp",     icon: "💬", label: "WhatsApp",         desc: "MP4 · 480p · arquivo pequeno" },
+  { id: "email",        icon: "📧", label: "E-mail",           desc: "MP4 · 480p · balanceado" },
+  { id: "web",          icon: "🌐", label: "Web (WebM)",       desc: "WebM · 720p · carregamento rápido" },
+  { id: "audio_mp3",    icon: "🎵", label: "Áudio MP3",        desc: "Extrai apenas o áudio" },
 ];
 
 interface ConvertToolProps {
@@ -134,8 +134,8 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
     const sizeMB = f.size / (1024 * 1024);
     const ext = f.name.split(".").pop()?.toLowerCase();
     const msgs: string[] = [];
-    if (ext === "mov" || ext === "avi") msgs.push(`${ext.toUpperCase()} detected — MP4 recommended for best compatibility.`);
-    if (sizeMB > 200) msgs.push(`Large file (${formatBytes(f.size)}) — consider Compress tool first.`);
+    if (ext === "mov" || ext === "avi") msgs.push(`${ext.toUpperCase()} detectado — MP4 recomendado para máxima compatibilidade.`);
+    if (sizeMB > 200) msgs.push(`Arquivo grande (${formatBytes(f.size)}) — considere usar a ferramenta Compactar primeiro.`);
     setAutoDetectMsg(msgs.length ? msgs.join(" ") : null);
   };
 
@@ -171,7 +171,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
 
   const handleConvert = async () => {
     if (!file) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…", description: "First run takes ~5s." }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…", description: "A primeira vez leva ~5s." }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false);
     const processStart = Date.now();
     const ff = ffmpeg.current!;
@@ -182,7 +182,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
     const inp = `in.${file.name.split(".").pop()}`;
     const out = `out.${outExt}`;
 
-    const jobId = startJob({ toolId: "convert", toolLabel: "Convert", icon: "🔄", fileName: file.name });
+    const jobId = startJob({ toolId: "convert", toolLabel: "Converter", icon: "🔄", fileName: file.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100);
       setProgress(pct);
@@ -218,7 +218,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
 
       // Show fast path indicator
       if (fastPath) {
-        toast({ title: "⚡ Using fast stream copy" });
+        toast({ title: "⚡ Usando cópia direta (mais rápido)" });
       }
 
       await ff.exec(args);
@@ -232,12 +232,12 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
       setDone(true);
       setResult({ url, filename, size: sizeStr, rawSize: blob.size, startTime: processStart });
       sessionStore.markDone("convert");
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "convert", "Convert");
-      toast({ title: "✓ Done!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "convert", "Converter");
+      toast({ title: "✓ Concluído!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Conversion failed", description: msg });
+      toast({ variant: "destructive", title: "Falha na conversão", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -273,8 +273,8 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
           {/* Mode toggle */}
           <div className="flex gap-1 bg-gray-100 dark:bg-gray-800/60 rounded-xl p-1">
             {([
-              { id: "quick" as Mode,    icon: <Zap className="w-3.5 h-3.5" />,      label: "Quick Mode" },
-              { id: "advanced" as Mode, icon: <Settings2 className="w-3.5 h-3.5" />, label: "Advanced" },
+              { id: "quick" as Mode,    icon: <Zap className="w-3.5 h-3.5" />,      label: "Modo Rápido" },
+              { id: "advanced" as Mode, icon: <Settings2 className="w-3.5 h-3.5" />, label: "Avançado" },
             ]).map(m => (
               <button key={m.id} onClick={() => setMode(m.id)}
                 className={cn(
@@ -294,7 +294,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
                 className="space-y-3">
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Choose output:</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Escolha o destino:</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {QUICK_PRESETS.map(p => (
                     <motion.button key={p.id}
@@ -322,7 +322,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
                 className="space-y-4">
                 {/* All presets */}
                 <div className="space-y-2">
-                  <Label className="text-xs text-gray-500 uppercase tracking-wide">Quick Presets</Label>
+                  <Label className="text-xs text-gray-500 uppercase tracking-wide">Perfis Rápidos</Label>
                   <div className="flex flex-wrap gap-2">
                     {CONVERT_PRESETS.map(p => (
                       <motion.button key={p.id} onClick={() => applyPreset(p.id)}
@@ -342,7 +342,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-500">Output Format</Label>
+                    <Label className="text-xs text-gray-500">Formato de Saída</Label>
                     <Select value={fmt} onValueChange={v => { setFmt(v as Fmt); setActivePreset("original"); }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -357,7 +357,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
                   </div>
                   {!isAudio(fmt) && (
                     <div className="space-y-1">
-                      <Label className="text-xs text-gray-500">Resolution</Label>
+                      <Label className="text-xs text-gray-500">Resolução</Label>
                       <Select value={res} onValueChange={v => { setRes(v as Res); setActivePreset("original"); }}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -370,7 +370,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
                     </div>
                   )}
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-500">Quality Level</Label>
+                    <Label className="text-xs text-gray-500">Nível de Qualidade</Label>
                     <Select value={quality} onValueChange={v => { setQuality(v as Quality); setActivePreset("original"); }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -385,7 +385,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
                 {!isAudio(fmt) && fmt !== "muted" && (
                   <div className="space-y-1">
                     <Label className="text-xs text-gray-500 flex items-center gap-1">
-                      <RotateCcw className="w-3 h-3" /> Rotate / Flip
+                      <RotateCcw className="w-3 h-3" /> Girar / Inverter
                     </Label>
                     <div className="flex flex-wrap gap-2">
                       {ROTATE_OPTS.map(o => (
@@ -410,7 +410,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
                     <div className="flex items-center gap-2">
                       <Switch id="trim" checked={trimEnabled} onCheckedChange={setTrimEnabled} />
                       <Label htmlFor="trim" className="flex items-center gap-1.5 text-sm cursor-pointer">
-                        <Scissors className="w-3.5 h-3.5" /> Trim video
+                        <Scissors className="w-3.5 h-3.5" /> Cortar vídeo
                       </Label>
                     </div>
                     {trimEnabled && (
@@ -424,7 +424,7 @@ const ConvertTool = ({ initialPreset }: ConvertToolProps) => {
           </AnimatePresence>
 
           <AnimatedButton onClick={handleConvert} loading={processing} className="w-full" size="lg">
-            {processing ? "Converting…" : "Convert Now"}
+            {processing ? "Convertendo…" : "Converter Agora"}
           </AnimatedButton>
 
           {processing && <AnimatedProgress value={progress} stages done={done} />}

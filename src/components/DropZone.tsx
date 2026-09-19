@@ -114,25 +114,25 @@ const DropZone = ({ onFile, accept = "video/*", label, variant = "default" }: Dr
           {dragging ? (
             <motion.p key="drop" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
               className={cn("font-bold text-blue-700 dark:text-blue-300", isHero ? "text-lg" : "text-base")}>
-              Release to upload!
+              Solte para enviar!
             </motion.p>
           ) : (
             <motion.div key="idle" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
               <p className={cn("font-bold text-gray-800 dark:text-gray-100", isHero ? "text-xl sm:text-2xl" : "text-sm sm:text-base")}>
-                {label || (isHero ? "Drop your video anywhere" : "Drop your video here")}
+                {label || (isHero ? "Solte a gravação aqui" : "Solte o vídeo aqui")}
               </p>
               {isHero && (
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">
-                  No upload. No signup. No limits.
+                  Sem upload. Sem cadastro. Sem limites.
                 </p>
               )}
             </motion.div>
           )}
         </AnimatePresence>
         <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500">
-          or{" "}
+          ou{" "}
           <span className="text-blue-500 dark:text-blue-400 font-semibold hover:underline">
-            click to browse
+            clique para selecionar
           </span>
           {" "}— MP4, WebM, MOV, AVI, MKV
         </p>
@@ -154,7 +154,7 @@ const DropZone = ({ onFile, accept = "video/*", label, variant = "default" }: Dr
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
           className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/50 px-3 py-1.5 rounded-full">
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" />
-          Your files never leave your device — everything runs locally
+          O arquivo nunca sai do seu computador — tudo roda localmente
         </motion.div>
       )}
 

@@ -37,10 +37,10 @@ const detect = (file: File, width: number, height: number): DetectedInfo => {
   const targetCrf = sizeMB > 200 ? "32" : sizeMB > 80 ? "28" : "24";
 
   const summary: string[] = [];
-  if (needsConvert) summary.push(`Convert ${ext.toUpperCase()} → MP4`);
-  if (needsCompress) summary.push(`Compress ${formatBytes(file.size)} → ~${Math.round(sizeMB * 0.35)}MB`);
-  if (targetRes !== "original") summary.push(`Resize to ${targetRes.replace(":", "×")}`);
-  if (!summary.length) summary.push("Apply smart quality optimization");
+  if (needsConvert) summary.push(`Converter ${ext.toUpperCase()} → MP4`);
+  if (needsCompress) summary.push(`Compactar ${formatBytes(file.size)} → ~${Math.round(sizeMB * 0.35)}MB`);
+  if (targetRes !== "original") summary.push(`Redimensionar para ${targetRes.replace(":", "×")}`);
+  if (!summary.length) summary.push("Aplicar otimização de qualidade inteligente");
 
   return { format: ext, sizeMB, needsConvert, needsCompress, targetRes, targetCrf, summary };
 };
@@ -92,10 +92,10 @@ const AutoOptimizeTool = () => {
 
   const handleOptimize = async () => {
     if (!file || !info) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false); setError(null);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "autooptimize", toolLabel: "Auto Optimize", icon: "⚡", fileName: file.name });
+    const jobId = startJob({ toolId: "autooptimize", toolLabel: "Otimizar", icon: "⚡", fileName: file.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -115,16 +115,16 @@ const AutoOptimizeTool = () => {
       const blob = await readOutputBlob(ff, "optimized.mp4", "video/mp4");
       const url = URL.createObjectURL(blob);
       const base = file.name.replace(/\.[^.]+$/, "");
-      const filename = `${base}-optimized.mp4`;
+      const filename = `${base}-otimizado.mp4`;
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr, rawSize: blob.size });
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "autooptimize", "Auto Optimize");
-      toast({ title: "✓ Optimized!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "autooptimize", "Otimizar");
+      toast({ title: "✓ Otimizado!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -133,14 +133,14 @@ const AutoOptimizeTool = () => {
   return (
     <div className="space-y-4">
       {!file ? (
-        <DropZone onFile={handleFile} label="Drop video to auto-optimize" />
+        <DropZone onFile={handleFile} label="Solte o vídeo para otimizar automaticamente" />
       ) : (
         <VideoPreview ref={videoRef} file={file} previewUrl={previewUrl} onReset={reset} onLoadedMetadata={onMetadata} />
       )}
 
       {file && !info && !result && (
         <div className="text-center py-4 text-xs text-gray-400 dark:text-gray-500">
-          Play the video above for a moment to detect its properties, then the optimize button will appear.
+          Reproduza o vídeo acima por um instante para detectar suas propriedades — o botão de otimizar aparecerá em seguida.
         </div>
       )}
 
@@ -153,7 +153,7 @@ const AutoOptimizeTool = () => {
             {/* Detection summary */}
             <div className="glass-card p-4 space-y-3">
               <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <Zap className="w-4 h-4 text-blue-500" /> Auto-detected optimizations
+                <Zap className="w-4 h-4 text-blue-500" /> Otimizações detectadas automaticamente
               </p>
               <div className="space-y-2">
                 {info.summary.map((s, i) => (
@@ -167,17 +167,17 @@ const AutoOptimizeTool = () => {
                 ))}
               </div>
               <div className="flex items-center gap-3 pt-1 text-xs text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700/50">
-                <span>Input: {formatBytes(file.size)}</span>
+                <span>Entrada: {formatBytes(file.size)}</span>
                 <span>→</span>
                 <span className="text-green-600 dark:text-green-400 font-semibold">
-                  Est. output: ~{Math.round(info.sizeMB * (info.needsCompress ? 0.35 : 0.85))}MB
+                  Saída estimada: ~{Math.round(info.sizeMB * (info.needsCompress ? 0.35 : 0.85))}MB
                 </span>
               </div>
             </div>
 
             <AnimatedButton onClick={handleOptimize} loading={processing} className="w-full" size="lg">
               <Zap className="w-4 h-4" />
-              {processing ? "Optimizing…" : "⚡ Auto Optimize (1 Click)"}
+              {processing ? "Otimizando…" : "⚡ Otimizar Automaticamente (1 Clique)"}
             </AnimatedButton>
 
             {processing && <AnimatedProgress value={progress} stages done={done} />}
@@ -185,7 +185,7 @@ const AutoOptimizeTool = () => {
             {error && (
               <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3 text-sm text-red-700 dark:text-red-400">
                 {error}
-                <button onClick={() => setError(null)} className="ml-2 underline text-xs">Retry</button>
+                <button onClick={() => setError(null)} className="ml-2 underline text-xs">Tentar novamente</button>
               </div>
             )}
           </motion.div>

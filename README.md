@@ -111,5 +111,5 @@ MIT License
 
 Built by **MultiMian** — creating tools for creators and developers.
 
-[Click to visit → allConvert](https://mianhassam96.github.io/allConvert/)
+[Click to visit → allConvert](https://alltok.github.io/allConvert/)
 

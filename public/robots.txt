@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mianhassam96.github.io/MianConvert/sitemap.xml
+Sitemap: https://alltok.github.io/allConvert/sitemap.xml

@@ -12,14 +12,14 @@ interface UseCase {
 }
 
 const USE_CASES: UseCase[] = [
-  { icon: "📱", label: "Make TikTok video",   subtext: "Recommended for vertical clips",  toolId: "convert",     preset: "tiktok",    border: "hover:border-pink-400 dark:hover:border-pink-600",     bg: "hover:bg-pink-50 dark:hover:bg-pink-950/20" },
-  { icon: "📦", label: "Reduce file size",    subtext: "Smart compression for your file", toolId: "compress",    preset: undefined,   border: "hover:border-cyan-400 dark:hover:border-cyan-600",     bg: "hover:bg-cyan-50 dark:hover:bg-cyan-950/20" },
-  { icon: "✂️", label: "Cut / trim video",    subtext: "Based on your video length",      toolId: "timeline",    preset: undefined,   border: "hover:border-blue-400 dark:hover:border-blue-600", bg: "hover:bg-blue-50 dark:hover:bg-blue-950/20" },
-  { icon: "🎧", label: "Extract audio",       subtext: "Optimized for your format",       toolId: "audiostudio", preset: undefined,   border: "hover:border-blue-400 dark:hover:border-blue-600",bg: "hover:bg-blue-50 dark:hover:bg-blue-950/20" },
-  { icon: "🎬", label: "Improve quality",     subtext: "Recommended based on your video", toolId: "proeditor",   preset: undefined,   border: "hover:border-blue-400 dark:hover:border-blue-600", bg: "hover:bg-blue-50 dark:hover:bg-blue-950/20" },
-  { icon: "📸", label: "Create thumbnail",    subtext: "Best frame extraction",           toolId: "thumbnail",   preset: undefined,   border: "hover:border-amber-400 dark:hover:border-amber-600",   bg: "hover:bg-amber-50 dark:hover:bg-amber-950/20" },
-  { icon: "▶️", label: "YouTube 1080p",       subtext: "Optimized for YouTube upload",    toolId: "convert",     preset: "youtube",   border: "hover:border-red-400 dark:hover:border-red-600",       bg: "hover:bg-red-50 dark:hover:bg-red-950/20" },
-  { icon: "💬", label: "Add subtitles",       subtext: "Burn captions into video",        toolId: "subtitle",    preset: undefined,   border: "hover:border-blue-400 dark:hover:border-blue-600",     bg: "hover:bg-blue-50 dark:hover:bg-blue-950/20" },
+  { icon: "🔄", label: "Converter DVR para MP4", subtext: "Formato compatível com qualquer sistema", toolId: "convert",     preset: "processo",     border: "hover:border-blue-400 dark:hover:border-blue-600",     bg: "hover:bg-blue-50 dark:hover:bg-blue-950/20" },
+  { icon: "📦", label: "Compactar para envio",   subtext: "Compactação inteligente do arquivo",     toolId: "compress",    preset: undefined,   border: "hover:border-cyan-400 dark:hover:border-cyan-600",     bg: "hover:bg-cyan-50 dark:hover:bg-cyan-950/20" },
+  { icon: "✂️", label: "Cortar trecho relevante",subtext: "Com base na duração da gravação",        toolId: "timeline",    preset: undefined,   border: "hover:border-blue-400 dark:hover:border-blue-600", bg: "hover:bg-blue-50 dark:hover:bg-blue-950/20" },
+  { icon: "🎧", label: "Extrair áudio",          subtext: "Otimizado para o formato de origem",     toolId: "audiostudio", preset: undefined,   border: "hover:border-blue-400 dark:hover:border-blue-600",bg: "hover:bg-blue-50 dark:hover:bg-blue-950/20" },
+  { icon: "🎬", label: "Melhorar qualidade",     subtext: "Realce recomendado para a gravação",     toolId: "proeditor",   preset: undefined,   border: "hover:border-blue-400 dark:hover:border-blue-600", bg: "hover:bg-blue-50 dark:hover:bg-blue-950/20" },
+  { icon: "📸", label: "Extrair frame/still",    subtext: "Melhor captura como evidência",          toolId: "thumbnail",   preset: undefined,   border: "hover:border-amber-400 dark:hover:border-amber-600",   bg: "hover:bg-amber-50 dark:hover:bg-amber-950/20" },
+  { icon: "🔎", label: "Preparar para perícia",  subtext: "Máxima qualidade de imagem",             toolId: "convert",     preset: "evidencia_hd",   border: "hover:border-red-400 dark:hover:border-red-600",       bg: "hover:bg-red-50 dark:hover:bg-red-950/20" },
+  { icon: "💬", label: "Adicionar legenda",      subtext: "Grava identificação no vídeo",           toolId: "subtitle",    preset: undefined,   border: "hover:border-blue-400 dark:hover:border-blue-600",     bg: "hover:bg-blue-50 dark:hover:bg-blue-950/20" },
 ];
 
 interface UseCaseBarProps {
@@ -34,7 +34,7 @@ const UseCaseBar = ({ onOpen }: UseCaseBarProps) => (
     className="space-y-3"
   >
     <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
-      What do you want to do?
+      O que você precisa fazer?
     </p>
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
       {USE_CASES.map((uc, i) => (

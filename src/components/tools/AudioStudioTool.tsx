@@ -12,6 +12,7 @@ import ResultCard from "@/components/ResultCard";
 import AnimatedButton from "@/components/ui/AnimatedButton";
 import AnimatedProgress from "@/components/ui/AnimatedProgress";
 import { X, Music, VolumeX, Volume2 } from "lucide-react";
+import VideoPreview from "@/components/VideoPreview";
 import ErrorRecovery from "@/components/ErrorRecovery";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -47,7 +48,7 @@ const AudioStudioTool = () => {
 
   const handleFile = (f: File) => {
     const isValid = f.type.startsWith("audio/") || f.type.startsWith("video/");
-    if (!isValid) { toast({ variant: "destructive", title: "Please upload a video or audio file" }); return; }
+    if (!isValid) { toast({ variant: "destructive", title: "Envie um arquivo de vídeo ou áudio" }); return; }
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setFile(f); setPreviewUrl(URL.createObjectURL(f)); setResult(null); setDone(false);
     sessionStore.set(f);
@@ -61,10 +62,10 @@ const AudioStudioTool = () => {
 
   const handleProcess = async () => {
     if (!file) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "audiostudio", toolLabel: "Audio Studio", icon: "🎵", fileName: file.name });
+    const jobId = startJob({ toolId: "audiostudio", toolLabel: "Áudio", icon: "🎵", fileName: file.name });
 
     let fakeTimer: ReturnType<typeof setInterval> | null = null;
     if (mode === "mute") {
@@ -85,12 +86,12 @@ const AudioStudioTool = () => {
         await ff.deleteFile(`input.${ext}`);
         const blob = await readOutputBlob(ff, "muted.mp4", "video/mp4");
         const url = URL.createObjectURL(blob);
-        const filename = `${base}-muted.mp4`;
+        const filename = `${base}-sem-audio.mp4`;
         const sizeStr = formatBytes(blob.size);
         setProgress(100); setDone(true);
         setResult({ url, filename, size: sizeStr });
-        finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "audiostudio", "Audio Studio");
-        toast({ title: "✓ Audio removed!" });
+        finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "audiostudio", "Áudio");
+        toast({ title: "✓ Áudio removido!" });
 
       } else if (mode === "extract") {
         const outFile = `audio.${outputFmt}`;
@@ -108,8 +109,8 @@ const AudioStudioTool = () => {
         const sizeStr = formatBytes(blob.size);
         setDone(true);
         setResult({ url, filename, size: sizeStr });
-        finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "audiostudio", "Audio Studio");
-        toast({ title: "✓ Audio extracted!" });
+        finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "audiostudio", "Áudio");
+        toast({ title: "✓ Áudio extraído!" });
 
       } else if (mode === "convert") {
         const outFile = `converted.${outputFmt}`;
@@ -127,8 +128,8 @@ const AudioStudioTool = () => {
         const sizeStr = formatBytes(blob.size);
         setDone(true);
         setResult({ url, filename, size: sizeStr });
-        finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "audiostudio", "Audio Studio");
-        toast({ title: "✓ Converted!" });
+        finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "audiostudio", "Áudio");
+        toast({ title: "✓ Convertido!" });
 
       } else {
         // adjust mode
@@ -155,34 +156,34 @@ const AudioStudioTool = () => {
         const mime = isVideoFile ? "video/mp4" : (outputFmt === "mp3" ? "audio/mpeg" : outputFmt === "wav" ? "audio/wav" : "audio/aac");
         const blob = await readOutputBlob(ff, outFile, mime);
         const url = URL.createObjectURL(blob);
-        const filename = `${base}-adjusted.${isVideoFile ? "mp4" : outputFmt}`;
+        const filename = `${base}-ajustado.${isVideoFile ? "mp4" : outputFmt}`;
         const sizeStr = formatBytes(blob.size);
         setDone(true);
         setResult({ url, filename, size: sizeStr });
-        finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "audiostudio", "Audio Studio");
-        toast({ title: "✓ Done!" });
+        finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "audiostudio", "Áudio");
+        toast({ title: "✓ Concluído!" });
       }
     } catch (e) {
       if (fakeTimer) clearInterval(fakeTimer);
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       setProcessing(false);
     }
   };
 
   const MODES: { id: Mode; icon: React.ReactNode; label: string; desc: string }[] = [
-    { id: "adjust",  icon: <Volume2 className="w-4 h-4" />,  label: "Adjust",  desc: "Volume, fade in/out" },
-    { id: "mute",    icon: <VolumeX className="w-4 h-4" />,  label: "Mute",    desc: "Remove audio (instant)" },
-    { id: "extract", icon: <Music className="w-4 h-4" />,    label: "Extract", desc: "Save audio as file" },
-    { id: "convert", icon: <Music className="w-4 h-4" />,    label: "Convert", desc: "Change audio format" },
+    { id: "adjust",  icon: <Volume2 className="w-4 h-4" />,  label: "Ajustar",  desc: "Volume, fade in/out" },
+    { id: "mute",    icon: <VolumeX className="w-4 h-4" />,  label: "Silenciar",desc: "Remove o áudio (instantâneo)" },
+    { id: "extract", icon: <Music className="w-4 h-4" />,    label: "Extrair",  desc: "Salva o áudio como arquivo" },
+    { id: "convert", icon: <Music className="w-4 h-4" />,    label: "Converter",desc: "Muda o formato do áudio" },
   ];
 
   return (
     <div className="space-y-4">
       {!file ? (
-        <DropZone onFile={handleFile} accept="video/*,audio/*" label="Drop video or audio file" />
+        <DropZone onFile={handleFile} accept="video/*,audio/*" label="Solte o vídeo ou áudio" />
       ) : (
         <div className="space-y-3">
           {file.type.startsWith("audio/") ? (
@@ -229,11 +230,11 @@ const AudioStudioTool = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <Label className="text-sm font-medium">Volume: {volume}%</Label>
-                  <button onClick={() => setVolume(100)} className="text-xs text-blue-500 hover:underline">Reset</button>
+                  <button onClick={() => setVolume(100)} className="text-xs text-blue-500 hover:underline">Redefinir</button>
                 </div>
                 <Slider min={0} max={200} step={5} value={[volume]} onValueChange={([v]) => setVolume(v)} />
                 <p className="text-xs text-gray-400">
-                  {volume === 0 ? "🔇 Muted" : volume < 100 ? "🔉 Reduced" : volume === 100 ? "🔊 Original" : "📢 Boosted"}
+                  {volume === 0 ? "🔇 Silenciado" : volume < 100 ? "🔉 Reduzido" : volume === 100 ? "🔊 Original" : "📢 Amplificado"}
                 </p>
               </div>
               <div className="space-y-2">
@@ -247,7 +248,7 @@ const AudioStudioTool = () => {
                 </div>
                 {(fadeIn || fadeOut) && (
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-gray-500">Fade duration: {fadeDuration}s</Label>
+                    <Label className="text-xs text-gray-500">Duração do fade: {fadeDuration}s</Label>
                     <Slider min={0.5} max={5} step={0.5} value={[fadeDuration]} onValueChange={([v]) => setFadeDuration(v)} />
                   </div>
                 )}
@@ -258,13 +259,13 @@ const AudioStudioTool = () => {
           {/* Format selector for extract/convert */}
           {(mode === "extract" || mode === "convert" || (mode === "adjust" && file.type.startsWith("audio/"))) && (
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500">Output Format</Label>
+              <Label className="text-xs text-gray-500">Formato de Saída</Label>
               <Select value={outputFmt} onValueChange={v => setOutputFmt(v as OutputFmt)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mp3">MP3 (most compatible)</SelectItem>
-                  <SelectItem value="wav">WAV (lossless)</SelectItem>
-                  <SelectItem value="aac">AAC (high quality)</SelectItem>
+                  <SelectItem value="mp3">MP3 (mais compatível)</SelectItem>
+                  <SelectItem value="wav">WAV (sem perdas)</SelectItem>
+                  <SelectItem value="aac">AAC (alta qualidade)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -272,15 +273,15 @@ const AudioStudioTool = () => {
 
           {mode === "mute" && (
             <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl px-4 py-3 text-xs text-blue-700 dark:text-blue-300">
-              ⚡ Stream copy — removes audio without re-encoding. Near instant.
+              ⚡ Cópia direta do stream — remove o áudio sem reencodar. Praticamente instantâneo.
             </div>
           )}
 
           <AnimatedButton onClick={handleProcess} loading={processing} className="w-full" size="lg">
-            {processing ? "Processing…" : mode === "mute" ? "⚡ Mute Video" : mode === "extract" ? "Extract Audio" : mode === "convert" ? "Convert Audio" : "Apply & Export"}
+            {processing ? "Processando…" : mode === "mute" ? "⚡ Silenciar Vídeo" : mode === "extract" ? "Extrair Áudio" : mode === "convert" ? "Converter Áudio" : "Aplicar e Exportar"}
           </AnimatedButton>
 
-          {processing && <AnimatedProgress value={progress} label="Processing audio…" done={done} />}
+          {processing && <AnimatedProgress value={progress} label="Processando áudio…" done={done} />}
           {error && <ErrorRecovery error={error} onRetry={() => setError(null)} />}
         </>
       )}

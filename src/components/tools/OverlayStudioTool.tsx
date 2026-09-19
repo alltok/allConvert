@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useFFmpeg } from "@/hooks/use-ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { formatBytes, readOutputBlob, validateVideoFile } from "@/lib/ffmpeg-run";
+import { FONT_FILE } from "@/lib/ffmpeg-pipeline";
 import DropZone from "@/components/DropZone";
 import ResultCard from "@/components/ResultCard";
 import AnimatedButton from "@/components/ui/AnimatedButton";
@@ -47,7 +48,7 @@ const yExpr = (v: VPos) => v === "top" ? "20" : v === "bottom" ? "h-th-20" : "(h
 
 const defaultText = (): TextLayer => ({
   id: crypto.randomUUID(), type: "text",
-  text: "Your text here", fontSize: 36, color: "#ffffff",
+  text: "Câmera 01 — 00:00:00", fontSize: 36, color: "#ffffff",
   align: "center", vpos: "bottom", startTime: 0, endTime: 5, animation: "none",
 });
 
@@ -116,15 +117,15 @@ const OverlayStudioTool = () => {
     if (l.animation === "fadeout") alpha = `if(gt(t,${l.endTime - 1}),${l.endTime}-t,1)`;
     if (l.animation === "slide") alpha = "1";
     const slideX = l.animation === "slide" ? `if(lt(t-${l.startTime},0.5),(t-${l.startTime})*2*${x === "(w-tw)/2" ? "(w-tw)/2" : "100"},${x})` : x;
-    return `drawtext=text='${escaped}':fontsize=${l.fontSize}:fontcolor=0x${hex}:x=${slideX}:y=${y}:enable='between(t,${l.startTime},${l.endTime})':alpha='${alpha}'`;
+    return `drawtext=fontfile=${FONT_FILE}:text='${escaped}':fontsize=${l.fontSize}:fontcolor=0x${hex}:x=${slideX}:y=${y}:enable='between(t,${l.startTime},${l.endTime})':alpha='${alpha}'`;
   };
 
   const handleProcess = async () => {
     if (!video || !layers.length) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "overlay", toolLabel: "Overlay Studio", icon: "🧩", fileName: video.name });
+    const jobId = startJob({ toolId: "overlay", toolLabel: "Sobreposição", icon: "🧩", fileName: video.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -136,59 +137,70 @@ const OverlayStudioTool = () => {
       const textLayers = layers.filter(l => l.type === "text") as TextLayer[];
       const imageLayers = layers.filter(l => l.type === "image" && l.file) as ImageLayer[];
 
-      // Write image files
-      for (let i = 0; i < imageLayers.length; i++) {
-        const il = imageLayers[i];
-        const ext = il.file!.name.split(".").pop();
-        await ff.writeFile(`logo_${i}.${ext}`, await fetchFile(il.file!));
-      }
+      const args = ["-i", `input.${vExt}`];
+      const logoFiles: string[] = [];
 
-      let currentInput = `input.${vExt}`;
-      let stepIdx = 0;
-
-      // Apply text layers first
-      if (textLayers.length) {
-        const vf = textLayers.map(buildDrawtext).join(",");
-        const out = `step_${stepIdx}.mp4`;
-        await ff.exec(["-i", currentInput, "-vf", vf, "-c:a", "copy", "-preset", "fast", out]);
-        if (currentInput !== `input.${vExt}`) await ff.deleteFile(currentInput);
-        currentInput = out; stepIdx++;
-      }
-
-      // Apply image overlays
+      // Write every logo image as an extra input — all overlays render in one pass below
       for (let i = 0; i < imageLayers.length; i++) {
         const il = imageLayers[i];
         const ext = il.file!.name.split(".").pop();
         const logoFile = `logo_${i}.${ext}`;
-        const out = `step_${stepIdx}.mp4`;
-        const scaleFilter = `[1:v]scale=iw*${il.scale / 100}:-1,format=rgba,colorchannelmixer=aa=${il.opacity}[wm]`;
-        const overlayFilter = `[0:v][wm]overlay=${POS_FILTER[il.position]}:enable='between(t,${il.startTime},${il.endTime})'`;
-        await ff.exec(["-i", currentInput, "-i", logoFile, "-filter_complex", `${scaleFilter};${overlayFilter}`, "-c:a", "copy", "-preset", "fast", out]);
-        if (currentInput !== `input.${vExt}`) await ff.deleteFile(currentInput);
-        await ff.deleteFile(logoFile);
-        currentInput = out; stepIdx++;
+        await ff.writeFile(logoFile, await fetchFile(il.file!));
+        logoFiles.push(logoFile);
+        args.push("-i", logoFile);
       }
 
-      // If no layers processed, just copy
-      if (stepIdx === 0) {
-        await ff.exec(["-i", currentInput, "-c", "copy", `step_${stepIdx}.mp4`]);
-        currentInput = `step_${stepIdx}.mp4`;
+      const out = "overlay_out.mp4";
+
+      if (!textLayers.length && !imageLayers.length) {
+        // Nothing to draw — plain stream copy, no re-encode needed
+        args.push("-c", "copy", out);
+      } else {
+        // Single filter_complex graph: text drawtext chain first, then every
+        // image overlay chained on top of it — one encode pass, no matter how
+        // many layers exist (previously each image layer re-encoded the whole video).
+        const clauses: string[] = [];
+        let current = "0:v";
+
+        if (textLayers.length) {
+          clauses.push(`[${current}]${textLayers.map(buildDrawtext).join(",")}[vtext]`);
+          current = "vtext";
+        }
+
+        imageLayers.forEach((il, i) => {
+          clauses.push(`[${i + 1}:v]scale=iw*${il.scale / 100}:-1,format=rgba,colorchannelmixer=aa=${il.opacity}[wm${i}]`);
+          const next = `vov${i}`;
+          clauses.push(`[${current}][wm${i}]overlay=${POS_FILTER[il.position]}:enable='between(t,${il.startTime},${il.endTime})'[${next}]`);
+          current = next;
+        });
+
+        args.push(
+          "-filter_complex", clauses.join(";"),
+          "-map", `[${current}]`,
+          "-map", "0:a?",
+          "-c:a", "copy",
+          "-preset", "fast",
+          out
+        );
       }
 
+      await ff.exec(args);
       await ff.deleteFile(`input.${vExt}`);
-      const blob = await readOutputBlob(ff, currentInput, "video/mp4");
+      await Promise.all(logoFiles.map(f => ff.deleteFile(f).catch(() => {})));
+
+      const blob = await readOutputBlob(ff, out, "video/mp4");
       const url = URL.createObjectURL(blob);
       const base = video.name.replace(/\.[^.]+$/, "");
-      const filename = `${base}-overlay.mp4`;
+      const filename = `${base}-marcado.mp4`;
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr });
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "overlay", "Overlay Studio");
-      toast({ title: "✓ Done!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "overlay", "Sobreposição");
+      toast({ title: "✓ Concluído!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -197,7 +209,7 @@ const OverlayStudioTool = () => {
   return (
     <div className="space-y-4">
       {!video ? (
-        <DropZone onFile={handleVideo} label="Drop video for overlay studio" />
+        <DropZone onFile={handleVideo} label="Solte o vídeo para adicionar marcações" />
       ) : (
         <VideoPreview
           file={video}
@@ -211,13 +223,13 @@ const OverlayStudioTool = () => {
           {/* Layer list */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-gray-500 uppercase tracking-wide">Layers ({layers.length})</Label>
+              <Label className="text-xs text-gray-500 uppercase tracking-wide">Camadas ({layers.length})</Label>
               <div className="flex gap-2">
                 <AnimatedButton size="xs" variant="outline" onClick={addTextLayer}>
-                  <Type className="w-3 h-3" /> Text
+                  <Type className="w-3 h-3" /> Texto
                 </AnimatedButton>
                 <AnimatedButton size="xs" variant="outline" onClick={addImageLayer}>
-                  <ImagePlus className="w-3 h-3" /> Image
+                  <ImagePlus className="w-3 h-3" /> Imagem
                 </AnimatedButton>
               </div>
             </div>
@@ -227,7 +239,7 @@ const OverlayStudioTool = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
                     {layer.type === "text" ? <Type className="w-3.5 h-3.5 text-blue-500" /> : <ImagePlus className="w-3.5 h-3.5 text-blue-500" />}
-                    {layer.type === "text" ? "Text" : "Image"} Layer {i + 1}
+                    Camada de {layer.type === "text" ? "Texto" : "Imagem"} {i + 1}
                   </span>
                   {layers.length > 1 && (
                     <button onClick={() => removeLayer(layer.id)} className="text-red-400 hover:text-red-600 transition-colors">
@@ -238,58 +250,58 @@ const OverlayStudioTool = () => {
 
                 {layer.type === "text" && (
                   <>
-                    <Input value={layer.text} onChange={e => updateLayer(layer.id, { text: e.target.value })} placeholder="Enter text…" />
+                    <Input value={layer.text} onChange={e => updateLayer(layer.id, { text: e.target.value })} placeholder="Digite o texto…" />
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       <div className="space-y-1">
-                        <Label className="text-xs text-gray-500">Font size</Label>
+                        <Label className="text-xs text-gray-500">Tamanho da fonte</Label>
                         <Input type="number" min={12} max={120} value={layer.fontSize} onChange={e => updateLayer(layer.id, { fontSize: +e.target.value })} />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs text-gray-500">Color</Label>
+                        <Label className="text-xs text-gray-500">Cor</Label>
                         <input type="color" value={layer.color} onChange={e => updateLayer(layer.id, { color: e.target.value })}
                           className="w-full h-9 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer" />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs text-gray-500">H-align</Label>
+                        <Label className="text-xs text-gray-500">Alinhamento H</Label>
                         <Select value={layer.align} onValueChange={v => updateLayer(layer.id, { align: v as Align })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="left">Left</SelectItem>
-                            <SelectItem value="center">Center</SelectItem>
-                            <SelectItem value="right">Right</SelectItem>
+                            <SelectItem value="left">Esquerda</SelectItem>
+                            <SelectItem value="center">Centro</SelectItem>
+                            <SelectItem value="right">Direita</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs text-gray-500">V-position</Label>
+                        <Label className="text-xs text-gray-500">Posição V</Label>
                         <Select value={layer.vpos} onValueChange={v => updateLayer(layer.id, { vpos: v as VPos })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="top">Top</SelectItem>
-                            <SelectItem value="middle">Middle</SelectItem>
-                            <SelectItem value="bottom">Bottom</SelectItem>
+                            <SelectItem value="top">Topo</SelectItem>
+                            <SelectItem value="middle">Meio</SelectItem>
+                            <SelectItem value="bottom">Base</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                       <div className="space-y-1">
-                        <Label className="text-xs text-gray-500">Start (s)</Label>
+                        <Label className="text-xs text-gray-500">Início (s)</Label>
                         <Input type="number" min={0} step={0.5} value={layer.startTime} onChange={e => updateLayer(layer.id, { startTime: +e.target.value })} />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs text-gray-500">End (s)</Label>
+                        <Label className="text-xs text-gray-500">Fim (s)</Label>
                         <Input type="number" min={0} step={0.5} value={layer.endTime} onChange={e => updateLayer(layer.id, { endTime: +e.target.value })} />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs text-gray-500">Animation</Label>
+                        <Label className="text-xs text-gray-500">Animação</Label>
                         <Select value={layer.animation} onValueChange={v => updateLayer(layer.id, { animation: v as Animation })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
+                            <SelectItem value="none">Nenhuma</SelectItem>
                             <SelectItem value="fadein">Fade in</SelectItem>
                             <SelectItem value="fadeout">Fade out</SelectItem>
-                            <SelectItem value="slide">Slide in</SelectItem>
+                            <SelectItem value="slide">Deslizar</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -300,30 +312,30 @@ const OverlayStudioTool = () => {
                 {layer.type === "image" && (
                   <>
                     <div className="flex items-center gap-3">
-                      {layer.previewUrl && <img src={layer.previewUrl} alt="logo" className="h-10 w-10 object-contain rounded border border-gray-200 dark:border-gray-700" />}
+                      {layer.previewUrl && <img src={layer.previewUrl} alt="imagem" className="h-10 w-10 object-contain rounded border border-gray-200 dark:border-gray-700" />}
                       <span className="text-xs text-gray-500 truncate">{layer.file?.name}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <Label className="text-xs text-gray-500">Position</Label>
+                        <Label className="text-xs text-gray-500">Posição</Label>
                         <Select value={layer.position} onValueChange={v => updateLayer(layer.id, { position: v as ImageLayer["position"] })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="topleft">Top Left</SelectItem>
-                            <SelectItem value="topright">Top Right</SelectItem>
-                            <SelectItem value="bottomleft">Bottom Left</SelectItem>
-                            <SelectItem value="bottomright">Bottom Right</SelectItem>
-                            <SelectItem value="center">Center</SelectItem>
+                            <SelectItem value="topleft">Superior esquerda</SelectItem>
+                            <SelectItem value="topright">Superior direita</SelectItem>
+                            <SelectItem value="bottomleft">Inferior esquerda</SelectItem>
+                            <SelectItem value="bottomright">Inferior direita</SelectItem>
+                            <SelectItem value="center">Centro</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs text-gray-500">Size: {layer.scale}%</Label>
+                        <Label className="text-xs text-gray-500">Tamanho: {layer.scale}%</Label>
                         <Slider min={5} max={50} step={1} value={[layer.scale]} onValueChange={([v]) => updateLayer(layer.id, { scale: v })} />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs text-gray-500">Opacity: {layer.opacity.toFixed(1)}</Label>
+                      <Label className="text-xs text-gray-500">Opacidade: {layer.opacity.toFixed(1)}</Label>
                       <Slider min={0.1} max={1} step={0.1} value={[layer.opacity]} onValueChange={([v]) => updateLayer(layer.id, { opacity: v })} />
                     </div>
                   </>
@@ -333,10 +345,10 @@ const OverlayStudioTool = () => {
           </div>
 
           <AnimatedButton onClick={handleProcess} loading={processing} className="w-full" size="lg">
-            {processing ? "Rendering…" : "Render with Overlays"}
+            {processing ? "Renderizando…" : "Renderizar com Marcações"}
           </AnimatedButton>
 
-          {processing && <AnimatedProgress value={progress} label="Rendering overlays…" done={done} />}
+          {processing && <AnimatedProgress value={progress} label="Renderizando marcações…" done={done} />}
           {error && <ErrorRecovery error={error} onRetry={() => setError(null)} />}
         </>
       )}

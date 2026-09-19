@@ -10,8 +10,8 @@ import { Github, Mail, MessageSquare, Send, ExternalLink } from "lucide-react";
 import { fadeUp, stagger } from "@/lib/motion";
 
 const LINKS = [
-  { icon: Github, label: "GitHub", desc: "View source, report bugs, contribute", href: "https://github.com/Mianhassam96/allConvert", color: "text-gray-700 dark:text-gray-200" },
-  { icon: Mail, label: "Email", desc: "Direct contact for serious inquiries", href: "mailto:mianhassam96@gmail.com", color: "text-blue-600" },
+  { icon: Github, label: "GitHub", desc: "Veja o código-fonte, reporte bugs, contribua", href: "https://github.com/alltok/allConvert", color: "text-gray-700 dark:text-gray-200" },
+  { icon: Mail, label: "E-mail", desc: "Contato direto para assuntos importantes", href: "mailto:bruno@alltok.com.br", color: "text-blue-600" },
 ];
 
 const Contact = () => {
@@ -24,14 +24,14 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !message) {
-      toast({ variant: "destructive", title: "Please fill all fields" });
+      toast({ variant: "destructive", title: "Preencha todos os campos" });
       return;
     }
-    const subject = encodeURIComponent(`allConvert feedback from ${name}`);
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
-    window.open(`mailto:mianhassam96@gmail.com?subject=${subject}&body=${body}`);
+    const subject = encodeURIComponent(`Feedback allConvert de ${name}`);
+    const body = encodeURIComponent(`Nome: ${name}\nE-mail: ${email}\n\n${message}`);
+    window.open(`mailto:bruno@alltok.com.br?subject=${subject}&body=${body}`);
     setSent(true);
-    toast({ title: "Opening email client…", description: "Your message is pre-filled and ready to send." });
+    toast({ title: "Abrindo cliente de e-mail…", description: "Sua mensagem já está preenchida e pronta para enviar." });
   };
 
   return (
@@ -55,14 +55,14 @@ const Contact = () => {
           <motion.section variants={stagger} initial="hidden" animate="show" className="text-center space-y-3 pt-2">
             <motion.div variants={fadeUp} className="flex justify-center">
               <span className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-300 shadow-sm shadow-blue-500/10">
-                <MessageSquare className="w-4 h-4" /> Get in touch
+                <MessageSquare className="w-4 h-4" /> Fale conosco
               </span>
             </motion.div>
             <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
-              Contact Us
+              Contato
             </motion.h1>
             <motion.p variants={fadeUp} className="text-gray-500 dark:text-gray-400 max-w-md mx-auto text-sm sm:text-base">
-              Found a bug? Have a feature idea? Want to contribute? We'd love to hear from you.
+              Encontrou um problema? Tem uma sugestão de ferramenta? Quer contribuir? Adoraríamos ouvir você.
             </motion.p>
           </motion.section>
 
@@ -71,7 +71,7 @@ const Contact = () => {
 
             {/* Contact links */}
             <div className="space-y-4">
-              <h2 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">Reach out directly</h2>
+              <h2 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">Fale direto com a gente</h2>
               {LINKS.map((l, i) => (
                 <motion.a key={l.label} href={l.href} target="_blank" rel="noreferrer"
                   initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.1 }}
@@ -90,41 +90,41 @@ const Contact = () => {
 
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}
                 className="glass-card p-4 space-y-1 border-blue-200 dark:border-blue-800/60">
-                <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">💡 Feature requests</p>
-                <p className="text-xs text-blue-600 dark:text-blue-400">Open a GitHub issue for feature requests — it helps track and prioritize them.</p>
+                <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">💡 Sugestões de ferramentas</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400">Abra uma issue no GitHub para sugerir uma ferramenta — isso ajuda a priorizar o que construir.</p>
               </motion.div>
             </div>
 
             {/* Contact form */}
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.4 }}
               className="glass-card p-5 sm:p-6 space-y-4">
-              <h2 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">Send a message</h2>
+              <h2 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">Envie uma mensagem</h2>
               {sent ? (
                 <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                   className="text-center py-8 space-y-2">
                   <div className="text-4xl">✉️</div>
-                  <p className="font-semibold text-gray-900 dark:text-white">Email client opened!</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Your message is pre-filled. Just hit send.</p>
-                  <AnimatedButton variant="outline" onClick={() => setSent(false)} className="mt-2">Send another</AnimatedButton>
+                  <p className="font-semibold text-gray-900 dark:text-white">Cliente de e-mail aberto!</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Sua mensagem já está preenchida. Basta enviar.</p>
+                  <AnimatedButton variant="outline" onClick={() => setSent(false)} className="mt-2">Enviar outra</AnimatedButton>
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-500 dark:text-gray-400">Name</Label>
-                    <Input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" />
+                    <Label className="text-xs text-gray-500 dark:text-gray-400">Nome</Label>
+                    <Input value={name} onChange={e => setName(e.target.value)} placeholder="Seu nome" />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-500 dark:text-gray-400">Email</Label>
-                    <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" />
+                    <Label className="text-xs text-gray-500 dark:text-gray-400">E-mail</Label>
+                    <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-500 dark:text-gray-400">Message</Label>
+                    <Label className="text-xs text-gray-500 dark:text-gray-400">Mensagem</Label>
                     <textarea value={message} onChange={e => setMessage(e.target.value)}
-                      placeholder="Tell us what's on your mind…" rows={4}
+                      placeholder="Conte o que você precisa…" rows={4}
                       className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm px-3 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-colors" />
                   </div>
                   <AnimatedButton type="submit" className="w-full" size="lg">
-                    <Send className="w-4 h-4" /> Send Message
+                    <Send className="w-4 h-4" /> Enviar Mensagem
                   </AnimatedButton>
                 </form>
               )}

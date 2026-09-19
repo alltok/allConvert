@@ -2,10 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── IBM Carbon Design System — g100 (black) theme tokens ──────────────── */
+/* ── IBM Carbon Design System theme tokens ──────────────────────────────
+   g10 (light) lives on :root; g100 (black) overrides it under .dark.
+   Both themes share the same interactive blue (#0f62fe) — Carbon keeps
+   that constant, only the surface/text tokens change. ──────────────── */
 @layer base {
-  :root,
+  :root {
+    /* g10 — light */
+    --background: 0 0% 96.1%;         /* #f4f4f4 */
+    --foreground: 0 0% 8.6%;          /* #161616 */
+    --card: 0 0% 100%;                /* #ffffff layer-01 */
+    --card-foreground: 0 0% 8.6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8.6%;
+    --primary: 220 98% 53%;           /* #0f62fe carbon blue-60 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 87.8%;          /* #e0e0e0 layer-02 */
+    --secondary-foreground: 0 0% 8.6%;
+    --muted: 0 0% 87.8%;
+    --muted-foreground: 0 0% 32.2%;   /* #525252 text-secondary */
+    --accent: 0 0% 87.8%;
+    --accent-foreground: 0 0% 8.6%;
+    --destructive: 356 82% 47%;       /* #da1e28 support-error (g10) */
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 87.8%;             /* #e0e0e0 border-subtle */
+    --input: 0 0% 87.8%;
+    --ring: 220 98% 53%;              /* g10 focus ring: blue (white would vanish on white) */
+    --radius: 0rem;                   /* carbon is flat, no rounding */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 8.6%;
+    --sidebar-primary: 220 98% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 87.8%;
+    --sidebar-accent-foreground: 0 0% 8.6%;
+    --sidebar-border: 0 0% 87.8%;
+    --sidebar-ring: 220 98% 53%;
+  }
+
   .dark {
+    /* g100 — black */
     --background: 0 0% 8.6%;          /* #161616 */
     --foreground: 0 0% 95.7%;         /* #f4f4f4 */
     --card: 0 0% 14.9%;               /* #262626 layer-01 */
@@ -20,12 +55,12 @@
     --muted-foreground: 0 0% 77.6%;   /* #c6c6c6 */
     --accent: 0 0% 22.4%;
     --accent-foreground: 0 0% 95.7%;
-    --destructive: 357 94% 64%;       /* #fa4d56 support-error */
+    --destructive: 357 94% 64%;       /* #fa4d56 support-error (g100) */
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 22.4%;             /* #393939 border-subtle */
     --input: 0 0% 22.4%;
-    --ring: 0 0% 100%;                /* carbon focus ring: white */
-    --radius: 0rem;                   /* carbon is flat, no rounding */
+    --ring: 0 0% 100%;                /* g100 focus ring: white */
+    --radius: 0rem;
     --sidebar-background: 0 0% 14.9%;
     --sidebar-foreground: 0 0% 95.7%;
     --sidebar-primary: 220 98% 53%;
@@ -94,7 +129,7 @@
   /* ── Bordered card (flat accent line instead of animated gradient) ── */
   .gradient-border {
     position: relative;
-    background: #262626;
+    background: hsl(var(--card));
     border-left: 2px solid #0f62fe;
   }
   .gradient-border::before { content: none; }

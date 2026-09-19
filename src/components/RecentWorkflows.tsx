@@ -29,7 +29,7 @@ const RecentWorkflows = ({ onOpen }: RecentWorkflowsProps) => {
       className="space-y-2"
     >
       <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-        <Clock className="w-3.5 h-3.5" /> Recent workflows
+        <Clock className="w-3.5 h-3.5" /> Usados recentemente
       </p>
       <div className="flex flex-wrap gap-2">
         {workflows.map((w, i) => (

@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { toBlobURL } from "@ffmpeg/util";
+import { toBlobURL, fetchFile } from "@ffmpeg/util";
+import { FONT_FILE } from "@/lib/ffmpeg-pipeline";
 
 // ── Singleton: one FFmpeg instance shared across all tools ──────────────────
 let globalFFmpeg: FFmpeg | null = null;
@@ -61,6 +62,17 @@ export const useFFmpeg = () => {
         notifyAll();
 
         await ffmpeg.load({ coreURL, wasmURL });
+
+        // Write a shared font into the virtual FS so drawtext/subtitles have
+        // something to render with. Never blocks readiness — tools that don't
+        // draw text work fine even if this fetch fails.
+        try {
+          const fontData = await fetchFile(`${import.meta.env.BASE_URL}fonts/DejaVuSans.ttf`);
+          await ffmpeg.writeFile(FONT_FILE, fontData);
+        } catch {
+          // Text overlays/legends will silently render without text if this fails —
+          // acceptable degradation, not worth failing the whole load for.
+        }
 
         globalFFmpeg = ffmpeg;
         globalLoaded = true;

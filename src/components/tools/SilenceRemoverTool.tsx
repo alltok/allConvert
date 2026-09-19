@@ -63,10 +63,10 @@ const SilenceRemoverTool = () => {
 
   const handleProcess = async () => {
     if (!file) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false); setError(null);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "silenceremover", toolLabel: "Silence Remover", icon: "🔇", fileName: file.name });
+    const jobId = startJob({ toolId: "silenceremover", toolLabel: "Remover Silêncio", icon: "🔇", fileName: file.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -113,26 +113,26 @@ const SilenceRemoverTool = () => {
       const blob = await readOutputBlob(ff, outFile, mime);
       const url = URL.createObjectURL(blob);
       const base = file.name.replace(/\.[^.]+$/, "");
-      const filename = `${base}-no-silence.${isAudio ? ext : "mp4"}`;
+      const filename = `${base}-sem-silencio.${isAudio ? ext : "mp4"}`;
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr, rawSize: blob.size });
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "silenceremover", "Silence Remover");
-      toast({ title: "✓ Silence removed!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "silenceremover", "Remover Silêncio");
+      toast({ title: "✓ Silêncio removido!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
   };
 
   const QUICK_PRESETS = [
-    { id: "podcast",  icon: "🎙", label: "Podcast",     desc: "Remove pauses > 0.5s",  threshold: -35, minSilence: 0.5, padding: 0.1 },
-    { id: "interview",icon: "🎤", label: "Interview",   desc: "Remove pauses > 1s",    threshold: -40, minSilence: 1.0, padding: 0.2 },
-    { id: "lecture",  icon: "📚", label: "Lecture",     desc: "Remove pauses > 2s",    threshold: -40, minSilence: 2.0, padding: 0.3 },
-    { id: "aggressive",icon:"⚡", label: "Aggressive",  desc: "Remove all silence",    threshold: -30, minSilence: 0.3, padding: 0.05 },
+    { id: "podcast",   icon: "🎙", label: "Gravação Geral", desc: "Remove pausas > 0,5s",  threshold: -35, minSilence: 0.5, padding: 0.1 },
+    { id: "interview", icon: "🎤", label: "Depoimento",     desc: "Remove pausas > 1s",    threshold: -40, minSilence: 1.0, padding: 0.2 },
+    { id: "lecture",   icon: "📚", label: "Gravação Longa", desc: "Remove pausas > 2s",    threshold: -40, minSilence: 2.0, padding: 0.3 },
+    { id: "aggressive",icon:"⚡",  label: "Agressivo",      desc: "Remove todo o silêncio",threshold: -30, minSilence: 0.3, padding: 0.05 },
   ];
 
   const applyPreset = (p: typeof QUICK_PRESETS[0]) => {
@@ -144,7 +144,7 @@ const SilenceRemoverTool = () => {
   return (
     <div className="space-y-4">
       {!file ? (
-        <DropZone onFile={handleFile} accept="video/*,audio/*" label="Drop video or audio to remove silence" />
+        <DropZone onFile={handleFile} accept="video/*,audio/*" label="Solte o vídeo ou áudio para remover o silêncio" />
       ) : (
         <VideoPreview ref={videoRef} file={file} previewUrl={previewUrl} onReset={reset} warning={warning} />
       )}
@@ -162,7 +162,7 @@ const SilenceRemoverTool = () => {
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 )}>
                 {m === "quick" ? <Zap className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-                {m === "quick" ? "Quick Mode" : "Advanced"}
+                {m === "quick" ? "Modo Rápido" : "Avançado"}
               </button>
             ))}
           </div>
@@ -201,22 +201,22 @@ const SilenceRemoverTool = () => {
             >
               <div className="space-y-1.5">
                 <div className="flex justify-between">
-                  <Label className="text-xs text-gray-500">Silence threshold: {threshold} dB</Label>
-                  <span className="text-[10px] text-gray-400">More negative = stricter</span>
+                  <Label className="text-xs text-gray-500">Limiar de silêncio: {threshold} dB</Label>
+                  <span className="text-[10px] text-gray-400">Mais negativo = mais rigoroso</span>
                 </div>
                 <Slider min={-60} max={-10} step={1} value={[threshold]}
                   onValueChange={([v]) => setThreshold(v)} />
               </div>
               <div className="space-y-1.5">
                 <div className="flex justify-between">
-                  <Label className="text-xs text-gray-500">Min silence duration: {minSilence}s</Label>
-                  <span className="text-[10px] text-gray-400">Shorter = more aggressive</span>
+                  <Label className="text-xs text-gray-500">Duração mínima do silêncio: {minSilence}s</Label>
+                  <span className="text-[10px] text-gray-400">Menor = mais agressivo</span>
                 </div>
                 <Slider min={0.1} max={3} step={0.1} value={[minSilence]}
                   onValueChange={([v]) => setMinSilence(v)} />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs text-gray-500">Keep padding: {padding}s</Label>
+                <Label className="text-xs text-gray-500">Margem de segurança: {padding}s</Label>
                 <Slider min={0} max={0.5} step={0.05} value={[padding]}
                   onValueChange={([v]) => setPadding(v)} />
               </div>
@@ -225,12 +225,12 @@ const SilenceRemoverTool = () => {
 
           <div className="flex items-start gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl px-3 py-2.5">
             <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            Removes silent sections from your video or audio. Great for podcasts, interviews, and lectures.
+            Remove trechos silenciosos do vídeo ou áudio. Ótimo para depoimentos, escutas e gravações longas.
           </div>
 
           <AnimatedButton onClick={handleProcess} loading={processing} className="w-full" size="lg">
             <VolumeX className="w-4 h-4" />
-            {processing ? "Removing silence…" : "Remove Silence"}
+            {processing ? "Removendo silêncio…" : "Remover Silêncio"}
           </AnimatedButton>
 
           {processing && <AnimatedProgress value={progress} stages done={done} />}

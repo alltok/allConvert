@@ -46,7 +46,7 @@ const WorkspaceSidebar = ({ onOpenTool }: WorkspaceSidebarProps) => {
             className="fixed right-3 sm:right-4 bottom-4 sm:bottom-6 z-40 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-600 text-white px-3 py-2.5 rounded-2xl shadow-xl shadow-blue-500/30 text-xs font-bold"
           >
             <FolderOpen className="w-4 h-4" />
-            <span className="hidden xs:inline">Project</span>
+            <span className="hidden xs:inline">Projeto</span>
             {project.files.length > 0 && (
               <span className="bg-white/25 px-1.5 py-0.5 rounded-full text-[10px]">
                 {project.files.length}
@@ -77,7 +77,7 @@ const WorkspaceSidebar = ({ onOpenTool }: WorkspaceSidebarProps) => {
               <div className="flex items-center justify-between px-4 py-3.5 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-blue-600 to-blue-600">
                 <div className="flex items-center gap-2">
                   <FolderOpen className="w-4 h-4 text-white" />
-                  <span className="text-sm font-bold text-white">Current Project</span>
+                  <span className="text-sm font-bold text-white">Projeto Atual</span>
                 </div>
                 <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white transition-colors">
                   <X className="w-4 h-4" />
@@ -87,7 +87,7 @@ const WorkspaceSidebar = ({ onOpenTool }: WorkspaceSidebarProps) => {
               {/* Source file */}
               {project.sourceFileName && (
                 <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Source</p>
+                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Origem</p>
                   <div className="flex items-center gap-2">
                     <span className="text-lg">📂</span>
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">
@@ -102,13 +102,13 @@ const WorkspaceSidebar = ({ onOpenTool }: WorkspaceSidebarProps) => {
                 {project.files.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full gap-3 text-gray-400 dark:text-gray-500 px-6 text-center">
                     <span className="text-4xl">📁</span>
-                    <p className="text-sm font-medium">No exports yet</p>
-                    <p className="text-xs">Process a video to see your outputs here</p>
+                    <p className="text-sm font-medium">Nenhuma exportação ainda</p>
+                    <p className="text-xs">Processe uma gravação para ver os resultados aqui</p>
                   </div>
                 ) : (
                   <div className="p-3 space-y-2">
                     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-1">
-                      Exports ({project.files.length})
+                      Exportações ({project.files.length})
                     </p>
                     {project.files.map((file, i) => (
                       <motion.div
@@ -145,13 +145,13 @@ const WorkspaceSidebar = ({ onOpenTool }: WorkspaceSidebarProps) => {
 
               {/* Footer actions */}
               <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 space-y-2">
-                <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Quick actions</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Ações rápidas</p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { icon: "📦", label: "Compress", id: "compress" },
-                    { icon: "💬", label: "Subtitle", id: "subtitle" },
-                    { icon: "📸", label: "Thumbnail", id: "thumbnail" },
-                    { icon: "🔄", label: "Convert", id: "convert" },
+                    { icon: "📦", label: "Compactar", id: "compress" },
+                    { icon: "💬", label: "Legenda", id: "subtitle" },
+                    { icon: "📸", label: "Frame", id: "thumbnail" },
+                    { icon: "🔄", label: "Converter", id: "convert" },
                   ].map(a => (
                     <button key={a.id}
                       onClick={() => { onOpenTool(a.id); setOpen(false); }}
@@ -166,7 +166,7 @@ const WorkspaceSidebar = ({ onOpenTool }: WorkspaceSidebarProps) => {
                   onClick={() => { projectStore.clear(); setOpen(false); }}
                   className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
                 >
-                  <Trash2 className="w-3 h-3" /> Clear project
+                  <Trash2 className="w-3 h-3" /> Limpar projeto
                 </button>
               </div>
             </motion.div>

@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 import CommandPalette from "@/components/CommandPalette";
 
 const NAV = [
-  { to: "/", label: "Home" },
-  { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
+  { to: "/", label: "Início" },
+  { to: "/about", label: "Sobre" },
+  { to: "/contact", label: "Contato" },
 ];
 
 const Header = () => {
@@ -36,12 +36,12 @@ const Header = () => {
           <div className="leading-none">
             <div className="flex items-center gap-1.5">
               <span className="text-lg sm:text-xl font-black text-white tracking-tight">
-                Mian<span className="text-yellow-300">Convert</span>
+                all<span className="text-yellow-300">Convert</span>
               </span>
               <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}
                 className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full shadow-sm shadow-green-400/50 shrink-0" />
             </div>
-            <p className="text-[9px] sm:text-[10px] text-blue-200 font-medium tracking-widest uppercase">Video Workspace</p>
+            <p className="text-[9px] sm:text-[10px] text-blue-200 font-medium tracking-widest uppercase">Evidências em Vídeo · CFTV</p>
           </div>
         </Link>
 
@@ -72,7 +72,7 @@ const Header = () => {
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Theme toggle */}
           <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-            onClick={toggle} aria-label="Toggle theme"
+            onClick={toggle} aria-label="Alternar tema"
             className="bg-white/15 hover:bg-white/25 text-white rounded-lg p-1.5 sm:p-2 transition-colors">
             <AnimatePresence mode="wait">
               <motion.span key={theme} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}
@@ -84,7 +84,7 @@ const Header = () => {
 
           {/* Mobile menu toggle */}
           <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-            onClick={() => setOpen(o => !o)} aria-label="Toggle menu"
+            onClick={() => setOpen(o => !o)} aria-label="Alternar menu"
             className="sm:hidden bg-white/15 hover:bg-white/25 text-white rounded-lg p-1.5 transition-colors">
             <AnimatePresence mode="wait">
               <motion.span key={open ? "x" : "m"} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}

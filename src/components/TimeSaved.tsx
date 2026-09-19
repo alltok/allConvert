@@ -1,6 +1,6 @@
 /**
  * TimeSaved — shown after export completes.
- * Shows processing time + "X faster than traditional editors" psychology.
+ * Shows how long processing took and, when applicable, the size reduction achieved.
  */
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -23,11 +23,6 @@ const TimeSaved = ({ startTime, savedBytes, originalBytes }: TimeSavedProps) => 
     ? `${elapsed.toFixed(1)}s`
     : `${Math.floor(elapsed / 60)}m ${Math.round(elapsed % 60)}s`;
 
-  // Traditional editor estimate: ~3-5 min for same operation
-  const traditionalMin = Math.max(2, Math.round(elapsed * 8));
-  const savedMin = traditionalMin - Math.round(elapsed / 60);
-  const savedStr = savedMin > 1 ? `~${savedMin}m faster` : `~${Math.round(elapsed * 7)}s faster`;
-
   const savingsPct = savedBytes && originalBytes && originalBytes > 0
     ? Math.round((savedBytes / originalBytes) * 100)
     : 0;
@@ -45,10 +40,10 @@ const TimeSaved = ({ startTime, savedBytes, originalBytes }: TimeSavedProps) => 
         </div>
         <div>
           <p className="text-xs font-black text-gray-900 dark:text-white">
-            ⚡ Finished in {elapsedStr}
+            ⚡ Concluído em {elapsedStr}
           </p>
           <p className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
-            🔥 {savedStr} than traditional editors
+            Processado localmente, sem envio a servidores
           </p>
         </div>
       </div>
@@ -62,10 +57,10 @@ const TimeSaved = ({ startTime, savedBytes, originalBytes }: TimeSavedProps) => 
             </div>
             <div>
               <p className="text-xs font-black text-gray-900 dark:text-white">
-                🔥 Saved {savingsPct}% file size
+                Economizou {savingsPct}% do tamanho
               </p>
               <p className="text-[10px] text-green-600 dark:text-green-400 font-semibold">
-                ⚡ Optimized for mobile sharing
+                Otimizado para envio e anexo
               </p>
             </div>
           </div>

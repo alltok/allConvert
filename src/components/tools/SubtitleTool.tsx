@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useFFmpeg } from "@/hooks/use-ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { formatBytes, readOutputBlob, validateVideoFile } from "@/lib/ffmpeg-run";
+import { FONT_FILE, FONT_FAMILY } from "@/lib/ffmpeg-pipeline";
 import DropZone from "@/components/DropZone";
 import VideoPreview from "@/components/VideoPreview";
 import ResultCard from "@/components/ResultCard";
@@ -93,13 +94,13 @@ const SubtitleTool = () => {
 
   const handleProcess = async () => {
     if (!video || !srtFile) {
-      toast({ variant: "destructive", title: "Upload both a video and an SRT file" });
+      toast({ variant: "destructive", title: "Envie um vídeo e um arquivo SRT" });
       return;
     }
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false); setError(null);
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "subtitle", toolLabel: "Subtitle", icon: "💬", fileName: video.name });
+    const jobId = startJob({ toolId: "subtitle", toolLabel: "Legenda", icon: "💬", fileName: video.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -116,7 +117,9 @@ const SubtitleTool = () => {
       try {
         await ff.writeFile("subs.srt", new TextEncoder().encode(srtContent));
         const alignment = position === "bottom" ? 2 : position === "top" ? 8 : 5;
-        const vf = `subtitles=subs.srt:force_style='FontSize=${fontSize},PrimaryColour=&H00${COLOR_HEX[color]}&,Alignment=${alignment},MarginV=20,Bold=1'`;
+        // fontsdir points libass at the FS root, where the shared font was written on load —
+        // without it, and without FontName matching that font, libass has nothing to render with.
+        const vf = `subtitles=subs.srt:fontsdir=.:force_style='FontName=${FONT_FAMILY},FontSize=${fontSize},PrimaryColour=&H00${COLOR_HEX[color]}&,Alignment=${alignment},MarginV=20,Bold=1'`;
         await ff.exec(["-i", `input.${vExt}`, "-vf", vf, "-c:a", "copy", "-preset", "fast", "subtitled.mp4"]);
         await ff.deleteFile("subs.srt");
         success = true;
@@ -124,18 +127,19 @@ const SubtitleTool = () => {
         // Strategy 2: fallback to drawtext per subtitle entry
         try { await ff.deleteFile("subs.srt"); } catch {}
         const entries = parseSRT(srtContent);
-        if (!entries.length) throw new Error("Could not parse SRT file — check the format.");
+        if (!entries.length) throw new Error("Não foi possível interpretar o arquivo SRT — verifique o formato.");
 
         const hex = COLOR_HEX[color];
         const y = position === "bottom" ? "h-th-30" : position === "top" ? "30" : "(h-th)/2";
 
         const drawtextFilters = entries.map(e => {
           const escaped = e.text.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/:/g, "\\:");
-          return `drawtext=text='${escaped}':fontsize=${fontSize}:fontcolor=0x${hex}:x=(w-tw)/2:y=${y}:enable='between(t,${e.start.toFixed(3)},${e.end.toFixed(3)})':box=1:boxcolor=black@0.45:boxborderw=6`;
+          return `drawtext=fontfile=${FONT_FILE}:text='${escaped}':fontsize=${fontSize}:fontcolor=0x${hex}:x=(w-tw)/2:y=${y}:enable='between(t,${e.start.toFixed(3)},${e.end.toFixed(3)})':box=1:boxcolor=black@0.45:boxborderw=6`;
         });
 
-        // FFmpeg has a limit on filter chain length — batch if needed
-        const BATCH = 50;
+        // Batched only as a safety net for pathologically long SRT files — a single
+        // pass covers virtually every real subtitle track without re-encoding N times.
+        const BATCH = 300;
         let currentInput = `input.${vExt}`;
         for (let i = 0; i < drawtextFilters.length; i += BATCH) {
           const batch = drawtextFilters.slice(i, i + BATCH);
@@ -147,23 +151,23 @@ const SubtitleTool = () => {
         success = true;
       }
 
-      if (!success) throw new Error("Both subtitle methods failed.");
+      if (!success) throw new Error("Os dois métodos de legenda falharam.");
 
       await ff.deleteFile(`input.${vExt}`);
       const blob = await readOutputBlob(ff, "subtitled.mp4", "video/mp4");
       const url = URL.createObjectURL(blob);
-      const filename = `${base}-subtitled.mp4`;
+      const filename = `${base}-legendado.mp4`;
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr });
       sessionStore.markDone("subtitle");
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "subtitle", "Subtitle");
-      toast({ title: "✓ Subtitles burned in!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "subtitle", "Legenda");
+      toast({ title: "✓ Legendas gravadas!" });
     } catch (e) {
       const msg = String(e);
       setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -172,7 +176,7 @@ const SubtitleTool = () => {
   return (
     <div className="space-y-4">
       {!video ? (
-        <DropZone onFile={handleVideo} label="Drop video to add subtitles" />
+        <DropZone onFile={handleVideo} label="Solte o vídeo para adicionar legendas" />
       ) : (
         <VideoPreview ref={videoRef} file={video} previewUrl={previewUrl} onReset={reset} />
       )}
@@ -182,11 +186,11 @@ const SubtitleTool = () => {
           {/* SRT upload */}
           <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-3">
             <Label className="text-sm font-medium flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-500" /> SRT Subtitle File
+              <FileText className="w-4 h-4 text-blue-500" /> Arquivo de Legenda SRT
             </Label>
             <label className="flex items-center gap-2 cursor-pointer bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg px-4 py-2.5 text-sm transition-colors w-fit">
               <Upload className="w-4 h-4" />
-              {srtFile ? srtFile.name : "Upload .srt file"}
+              {srtFile ? srtFile.name : "Enviar arquivo .srt"}
               <input type="file" accept=".srt,.vtt" className="hidden" onChange={handleSrt} />
             </label>
             {srtContent && (
@@ -201,37 +205,37 @@ const SubtitleTool = () => {
           {/* Style controls */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500">Font size</Label>
+              <Label className="text-xs text-gray-500">Tamanho da fonte</Label>
               <Select value={fontSize} onValueChange={v => setFontSize(v as FontSize)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="20">Small (20px)</SelectItem>
-                  <SelectItem value="28">Medium (28px)</SelectItem>
-                  <SelectItem value="36">Large (36px)</SelectItem>
-                  <SelectItem value="48">Extra large (48px)</SelectItem>
+                  <SelectItem value="20">Pequena (20px)</SelectItem>
+                  <SelectItem value="28">Média (28px)</SelectItem>
+                  <SelectItem value="36">Grande (36px)</SelectItem>
+                  <SelectItem value="48">Extra grande (48px)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500">Color</Label>
+              <Label className="text-xs text-gray-500">Cor</Label>
               <Select value={color} onValueChange={v => setColor(v as SubColor)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="white">⬜ White</SelectItem>
-                  <SelectItem value="yellow">🟡 Yellow</SelectItem>
-                  <SelectItem value="cyan">🔵 Cyan</SelectItem>
-                  <SelectItem value="lime">🟢 Lime</SelectItem>
+                  <SelectItem value="white">⬜ Branco</SelectItem>
+                  <SelectItem value="yellow">🟡 Amarelo</SelectItem>
+                  <SelectItem value="cyan">🔵 Ciano</SelectItem>
+                  <SelectItem value="lime">🟢 Verde-limão</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500">Position</Label>
+              <Label className="text-xs text-gray-500">Posição</Label>
               <Select value={position} onValueChange={v => setPosition(v as SubPosition)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bottom">⬇ Bottom</SelectItem>
-                  <SelectItem value="top">⬆ Top</SelectItem>
-                  <SelectItem value="middle">⬛ Middle</SelectItem>
+                  <SelectItem value="bottom">⬇ Base</SelectItem>
+                  <SelectItem value="top">⬆ Topo</SelectItem>
+                  <SelectItem value="middle">⬛ Meio</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -239,7 +243,7 @@ const SubtitleTool = () => {
 
           <div className="flex items-start gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2">
             <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            Subtitles are burned into the video. Uses subtitles filter with drawtext fallback for maximum compatibility.
+            As legendas são gravadas permanentemente no vídeo. Usa o filtro de legendas com fallback via texto sobreposto para máxima compatibilidade.
           </div>
 
           {/* Error recovery */}
@@ -247,21 +251,21 @@ const SubtitleTool = () => {
             <div className="flex items-start gap-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
               <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-red-700 dark:text-red-400">Processing failed</p>
+                <p className="text-sm font-semibold text-red-700 dark:text-red-400">O processamento falhou</p>
                 <p className="text-xs text-red-500 mt-0.5 break-words">{error}</p>
               </div>
               <button onClick={() => setError(null)}
                 className="shrink-0 text-xs text-red-500 hover:text-red-700 flex items-center gap-1">
-                <RefreshCw className="w-3.5 h-3.5" /> Retry
+                <RefreshCw className="w-3.5 h-3.5" /> Tentar novamente
               </button>
             </div>
           )}
 
           <AnimatedButton onClick={handleProcess} loading={processing} disabled={!srtFile} className="w-full" size="lg">
-            {processing ? "Burning subtitles…" : "Burn Subtitles"}
+            {processing ? "Gravando legendas…" : "Gravar Legendas"}
           </AnimatedButton>
 
-          {processing && <AnimatedProgress value={progress} label="Burning subtitles…" done={done} />}
+          {processing && <AnimatedProgress value={progress} label="Gravando legendas…" done={done} />}
         </>
       )}
 

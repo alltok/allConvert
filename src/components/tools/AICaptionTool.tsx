@@ -16,7 +16,7 @@ import VideoPreview from "@/components/VideoPreview";
 import AnimatedProgress from "@/components/ui/AnimatedProgress";
 import AnimatedButton from "@/components/ui/AnimatedButton";
 import ResultCard, { buildNextActions } from "@/components/ResultCard";
-import { Mic, MicOff, FileText, Upload, Sparkles, ChevronRight } from "lucide-react";
+import { Mic, MicOff, FileText, Upload, Sparkles, ChevronRight, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Step = "upload" | "transcribe" | "style" | "burn";
@@ -74,11 +74,11 @@ const AICaptionTool = () => {
       setSegments(segs);
       setTranscribeDone(true);
       setStep("style");
-      toast({ title: `✓ Transcribed ${segs.length} caption segments` });
+      toast({ title: `✓ ${segs.length} trechos transcritos` });
     } catch (e) {
       const msg = String(e);
       setError(msg);
-      toast({ variant: "destructive", title: "Transcription failed", description: msg });
+      toast({ variant: "destructive", title: "Falha na transcrição", description: msg });
     } finally {
       setTranscribing(false); setLiveText("");
     }
@@ -110,18 +110,18 @@ const AICaptionTool = () => {
       setSegments(parsed);
       setTranscribeDone(true);
       setStep("style");
-      toast({ title: `✓ Loaded ${parsed.length} caption segments from SRT` });
+      toast({ title: `✓ ${parsed.length} trechos carregados do SRT` });
     };
     reader.readAsText(f);
   };
 
   const handleBurn = async () => {
     if (!video || !segments.length) return;
-    if (!loaded) { toast({ title: "Loading FFmpeg…" }); await load(); }
+    if (!loaded) { toast({ title: "Carregando FFmpeg…" }); await load(); }
     setProcessing(true); setProgress(0); setResult(null); setDone(false); setError(null);
     setStep("burn");
     const ff = ffmpeg.current!;
-    const jobId = startJob({ toolId: "aicaption", toolLabel: "AI Captions", icon: "✨", fileName: video.name });
+    const jobId = startJob({ toolId: "aicaption", toolLabel: "Transcrição", icon: "✨", fileName: video.name });
     const handler = ({ progress: p }: { progress: number }) => {
       const pct = Math.round(p * 100); setProgress(pct); updateJob(jobId, pct);
     };
@@ -131,7 +131,9 @@ const AICaptionTool = () => {
       await ff.writeFile(`input.${vExt}`, await fetchFile(video));
 
       const filters = buildCaptionFilter(segments, selectedStyle);
-      const BATCH = 40;
+      // Batched only as a safety net for pathologically long transcripts — a single
+      // pass covers virtually every real video without re-encoding it N times over.
+      const BATCH = 300;
       let currentInput = `input.${vExt}`;
 
       for (let i = 0; i < filters.length; i += BATCH) {
@@ -149,16 +151,16 @@ const AICaptionTool = () => {
       const blob = await readOutputBlob(ff, "captioned.mp4", "video/mp4");
       const url = URL.createObjectURL(blob);
       const base = video.name.replace(/\.[^.]+$/, "");
-      const filename = `${base}-captioned.mp4`;
+      const filename = `${base}-legendado.mp4`;
       const sizeStr = formatBytes(blob.size);
       setDone(true);
       setResult({ url, filename, size: sizeStr, rawSize: blob.size });
-      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "aicaption", "AI Captions");
-      toast({ title: "✓ Captions burned in!" });
+      finishJob(jobId, { url, name: filename, size: sizeStr, rawSize: blob.size }, "aicaption", "Transcrição");
+      toast({ title: "✓ Legendas gravadas!" });
     } catch (e) {
       const msg = String(e); setError(msg);
       failJob(jobId, msg);
-      toast({ variant: "destructive", title: "Failed", description: msg });
+      toast({ variant: "destructive", title: "Falha", description: msg });
     } finally {
       ff.off("progress", handler); setProcessing(false);
     }
@@ -169,17 +171,17 @@ const AICaptionTool = () => {
 
       {/* Upload */}
       {!video ? (
-        <DropZone onFile={handleVideo} label="Drop video to generate captions" />
+        <DropZone onFile={handleVideo} label="Solte o vídeo para gerar transcrição" />
       ) : (
         <VideoPreview ref={videoRef} file={video} previewUrl={previewUrl} onReset={reset}
-          badge={transcribeDone ? `${segments.length} captions ready` : "Ready to transcribe"} />
+          badge={transcribeDone ? `${segments.length} trechos prontos` : "Pronto para transcrever"} />
       )}
 
       {/* Step indicator */}
       {video && !result && (
         <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
           {(["transcribe", "style", "burn"] as Step[]).map((s, i) => {
-            const labels = ["1. Transcribe", "2. Choose Style", "3. Burn In"];
+            const labels = ["1. Transcrever", "2. Escolher Estilo", "3. Gravar no Vídeo"];
             const done = (step === "style" && i === 0) || (step === "burn" && i <= 1) || (step === "transcribe" && i < 0);
             const active = step === s;
             return (
@@ -202,6 +204,15 @@ const AICaptionTool = () => {
         <AnimatePresence>
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
 
+            {/* Privacy warning — Web Speech API sends audio to the browser vendor */}
+            <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 rounded-xl px-4 py-3">
+              <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+                <strong>Recurso experimental.</strong> No Chrome/Edge, o reconhecimento de voz do navegador envia o áudio a servidores do Google para transcrição —
+                isso não é 100% local. Evite usar com material sigiloso ou sob sigilo de investigação. Nesses casos, revise o áudio manualmente ou use um arquivo SRT já existente.
+              </p>
+            </div>
+
             {speechSupported ? (
               <div className="glass-card p-5 space-y-4">
                 <div className="flex items-start gap-3">
@@ -209,10 +220,9 @@ const AICaptionTool = () => {
                     <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white">AI Auto-Transcribe</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">Transcrição Automática</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      Uses your browser's built-in speech recognition — no upload, instant, 100% private.
-                      The video will play while captions are generated.
+                      Usa o reconhecimento de voz nativo do navegador. O vídeo será reproduzido enquanto a transcrição é gerada.
                     </p>
                   </div>
                 </div>
@@ -221,7 +231,7 @@ const AICaptionTool = () => {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                      <span className="text-xs font-semibold text-red-600 dark:text-red-400">Recording…</span>
+                      <span className="text-xs font-semibold text-red-600 dark:text-red-400">Gravando…</span>
                     </div>
                     {liveText && (
                       <div className="bg-gray-50 dark:bg-gray-800/60 rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-gray-300 italic">
@@ -230,7 +240,7 @@ const AICaptionTool = () => {
                     )}
                     {segments.length > 0 && (
                       <p className="text-xs text-green-600 dark:text-green-400">
-                        ✓ {segments.length} segment{segments.length > 1 ? "s" : ""} captured
+                        ✓ {segments.length} trecho{segments.length > 1 ? "s" : ""} capturado{segments.length > 1 ? "s" : ""}
                       </p>
                     )}
                   </div>
@@ -243,17 +253,17 @@ const AICaptionTool = () => {
                   size="lg"
                 >
                   <Mic className="w-4 h-4" />
-                  {transcribing ? "Transcribing… (video is playing)" : "⚡ Auto-Generate Captions"}
+                  {transcribing ? "Transcrevendo… (o vídeo está reproduzindo)" : "⚡ Gerar Transcrição Automática"}
                 </AnimatedButton>
               </div>
             ) : (
               <div className="glass-card p-4 space-y-2">
                 <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
                   <MicOff className="w-4 h-4" />
-                  <p className="text-sm font-semibold">Speech recognition not available</p>
+                  <p className="text-sm font-semibold">Reconhecimento de voz não disponível</p>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Use Chrome or Edge for auto-transcription, or upload an SRT file below.
+                  Use Chrome ou Edge para transcrição automática, ou envie um arquivo SRT abaixo.
                 </p>
               </div>
             )}
@@ -261,11 +271,11 @@ const AICaptionTool = () => {
             {/* SRT upload fallback */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-3">
               <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                <FileText className="w-3.5 h-3.5" /> Or upload an existing SRT file
+                <FileText className="w-3.5 h-3.5" /> Ou envie um arquivo SRT existente
               </p>
               <label className="flex items-center gap-2 cursor-pointer bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg px-4 py-2.5 text-sm transition-colors w-fit">
                 <Upload className="w-4 h-4" />
-                Upload .srt file
+                Enviar arquivo .srt
                 <input type="file" accept=".srt,.vtt" className="hidden" onChange={handleSrtUpload} />
               </label>
             </div>
@@ -273,7 +283,7 @@ const AICaptionTool = () => {
             {error && (
               <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3 text-sm text-red-700 dark:text-red-400">
                 {error}
-                <button onClick={() => setError(null)} className="ml-2 underline text-xs">Dismiss</button>
+                <button onClick={() => setError(null)} className="ml-2 underline text-xs">Descartar</button>
               </div>
             )}
           </motion.div>
@@ -287,7 +297,7 @@ const AICaptionTool = () => {
 
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                ✓ {segments.length} captions ready — choose your style
+                ✓ {segments.length} trechos prontos — escolha o estilo
               </p>
             </div>
 
@@ -323,7 +333,7 @@ const AICaptionTool = () => {
                         fontWeight: style.bold ? "bold" : "normal",
                       }}
                     >
-                      {style.uppercase ? "SAMPLE TEXT" : "Sample text"}
+                      {style.uppercase ? "TEXTO DE EXEMPLO" : "Texto de exemplo"}
                     </span>
                   </div>
 
@@ -352,7 +362,7 @@ const AICaptionTool = () => {
             {/* Caption preview */}
             {segments.length > 0 && (
               <div className="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 space-y-1.5 max-h-32 overflow-y-auto">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Caption preview</p>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Prévia da transcrição</p>
                 {segments.slice(0, 5).map((seg, i) => (
                   <div key={i} className="flex items-start gap-2 text-xs">
                     <span className="text-gray-400 font-mono shrink-0 w-12">
@@ -362,14 +372,14 @@ const AICaptionTool = () => {
                   </div>
                 ))}
                 {segments.length > 5 && (
-                  <p className="text-[10px] text-gray-400">+{segments.length - 5} more segments…</p>
+                  <p className="text-[10px] text-gray-400">+{segments.length - 5} trechos a mais…</p>
                 )}
               </div>
             )}
 
             <AnimatedButton onClick={handleBurn} loading={processing} className="w-full" size="lg">
               <Sparkles className="w-4 h-4" />
-              Burn {segments.length} Captions ({selectedStyle.label} style)
+              Gravar {segments.length} legendas (estilo {selectedStyle.label})
             </AnimatedButton>
           </motion.div>
         </AnimatePresence>
@@ -377,13 +387,13 @@ const AICaptionTool = () => {
 
       {/* Step 3 — Burning */}
       {step === "burn" && processing && (
-        <AnimatedProgress value={progress} stages done={done} label="Burning captions…" />
+        <AnimatedProgress value={progress} stages done={done} label="Gravando legendas…" />
       )}
 
       {error && step === "burn" && (
         <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3 text-sm text-red-700 dark:text-red-400">
           {error}
-          <button onClick={() => { setError(null); setStep("style"); }} className="ml-2 underline text-xs">Back to styles</button>
+          <button onClick={() => { setError(null); setStep("style"); }} className="ml-2 underline text-xs">Voltar aos estilos</button>
         </div>
       )}
 

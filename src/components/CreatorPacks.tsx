@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Sparkles, ChevronRight } from "lucide-react";
 
-interface CreatorPack {
+interface EvidenceProfile {
   id: string;
   icon: string;
   name: string;
-  creator: string;
+  context: string;
   desc: string;
   gradient: string;
   tags: string[];
@@ -15,70 +15,74 @@ interface CreatorPack {
   hot?: boolean;
 }
 
-const PACKS: CreatorPack[] = [
+const PROFILES: EvidenceProfile[] = [
   {
-    id: "hormozi",
-    icon: "💪",
-    name: "Alex Hormozi Style",
-    creator: "Business Creator",
-    desc: "Bold white captions, high contrast, punchy cuts",
+    id: "boletim",
+    icon: "📋",
+    name: "Boletim de Ocorrência",
+    context: "Registro policial",
+    desc: "MP4 compatível, tamanho equilibrado, pronto para anexar",
     gradient: "from-orange-500 to-red-600",
-    tags: ["Bold captions", "High contrast", "Business"],
-    toolId: "aicaption",
-    hot: true,
-  },
-  {
-    id: "viral-reel",
-    icon: "🔥",
-    name: "Viral Reel Style",
-    creator: "Instagram / TikTok",
-    desc: "9:16 crop, neon captions, fast-paced energy",
-    gradient: "from-pink-500 to-blue-600",
-    tags: ["9:16 vertical", "Neon text", "TikTok"],
+    tags: ["MP4 padrão", "Tamanho equilibrado", "Registro"],
     toolId: "convert",
-    preset: "tiktok",
+    preset: "boletim",
     hot: true,
   },
   {
-    id: "podcast-clip",
-    icon: "🎙",
-    name: "Podcast Clip Style",
-    creator: "Podcast / Long-form",
-    desc: "Clean lower-third captions, minimal design",
+    id: "processo",
+    icon: "📎",
+    name: "Processo Eletrônico",
+    context: "PJe / e-SAJ / Projudi",
+    desc: "Arquivo leve, dentro do limite de anexo",
     gradient: "from-blue-500 to-blue-600",
-    tags: ["Lower thirds", "Minimal", "Audio"],
-    toolId: "aicaption",
-  },
-  {
-    id: "youtube-clean",
-    icon: "▶️",
-    name: "YouTube Clean HD",
-    creator: "YouTube Creator",
-    desc: "1080p export, clean subtitles, thumbnail ready",
-    gradient: "from-red-500 to-orange-500",
-    tags: ["1080p HD", "Clean subs", "Thumbnail"],
+    tags: ["Leve", "Compatível", "Anexo"],
     toolId: "convert",
-    preset: "youtube",
+    preset: "processo",
+    hot: true,
   },
   {
-    id: "tiktok-story",
-    icon: "📱",
-    name: "TikTok Story Style",
-    creator: "Short-form Creator",
-    desc: "Vertical crop, bold captions, compressed for upload",
+    id: "pericia",
+    icon: "🔎",
+    name: "Laudo Pericial",
+    context: "Perícia técnica",
+    desc: "Máxima qualidade de imagem, sem perdas perceptíveis",
+    gradient: "from-blue-500 to-blue-600",
+    tags: ["Alta qualidade", "Sem perdas", "Laudo"],
+    toolId: "convert",
+    preset: "evidencia_hd",
+  },
+  {
+    id: "email",
+    icon: "📧",
+    name: "Envio por E-mail",
+    context: "Anexo de e-mail",
+    desc: "Compactação para caber no limite de anexos",
+    gradient: "from-cyan-500 to-teal-500",
+    tags: ["Compactado", "Anexo", "E-mail"],
+    toolId: "convert",
+    preset: "email",
+  },
+  {
+    id: "whatsapp",
+    icon: "💬",
+    name: "Compartilhamento Rápido",
+    context: "WhatsApp / mensageiro",
+    desc: "Arquivo pequeno para envio imediato",
     gradient: "from-cyan-500 to-blue-600",
-    tags: ["Vertical", "Bold", "Compressed"],
-    toolId: "aicaption",
+    tags: ["Menor que 16MB", "Rápido", "Mensageiro"],
+    toolId: "compress",
+    preset: "mobile",
   },
   {
-    id: "discord-clip",
-    icon: "🎮",
-    name: "Discord / Gaming Clip",
-    creator: "Gaming Creator",
-    desc: "Under 8MB, neon captions, fast export",
-    gradient: "from-blue-500 to-blue-600",
-    tags: ["Under 8MB", "Neon", "Gaming"],
+    id: "arquivo",
+    icon: "🗄",
+    name: "Arquivamento Interno",
+    context: "Armazenamento longo prazo",
+    desc: "Máxima compactação mantendo legibilidade",
+    gradient: "from-slate-500 to-gray-700",
+    tags: ["Compacto", "Armazenamento", "Longo prazo"],
     toolId: "compress",
+    preset: "smallest",
   },
 ];
 
@@ -96,12 +100,12 @@ const CreatorPacks = ({ onOpen }: CreatorPacksProps) => (
     <div className="flex items-center gap-2">
       <Sparkles className="w-4 h-4 text-blue-500" />
       <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-        Creator Packs — signature styles
+        Perfis Prontos — para cada destino
       </p>
     </div>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-      {PACKS.map((pack, i) => (
+      {PROFILES.map((pack, i) => (
         <motion.button
           key={pack.id}
           initial={{ opacity: 0, scale: 0.94 }}
@@ -130,11 +134,11 @@ const CreatorPacks = ({ onOpen }: CreatorPacksProps) => (
                     <p className="text-sm font-bold text-white leading-tight">{pack.name}</p>
                     {pack.hot && (
                       <span className="text-[9px] font-bold bg-white/25 text-white px-1.5 py-0.5 rounded-full">
-                        🔥 HOT
+                        🔥 COMUM
                       </span>
                     )}
                   </div>
-                  <p className="text-[10px] text-white/70 mt-0.5">{pack.creator}</p>
+                  <p className="text-[10px] text-white/70 mt-0.5">{pack.context}</p>
                 </div>
               </div>
             </div>
@@ -153,7 +157,7 @@ const CreatorPacks = ({ onOpen }: CreatorPacksProps) => (
 
             {/* CTA */}
             <div className="flex items-center gap-1 text-xs font-bold text-white/90 group-hover:text-white transition-colors">
-              Use this pack
+              Usar este perfil
               <ChevronRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
             </div>
           </div>

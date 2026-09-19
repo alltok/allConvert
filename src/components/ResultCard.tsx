@@ -38,19 +38,19 @@ export const buildNextActions = (
 
   // Don't suggest the same tool
   if (toolId !== "compress" && mb > 20) {
-    actions.push({ icon: "📦", label: "Reduce size more", toolId: "compress" });
+    actions.push({ icon: "📦", label: "Reduzir ainda mais", toolId: "compress" });
   }
   if (toolId !== "convert" && ["mp4", "webm", "mov", "avi"].includes(ext)) {
-    actions.push({ icon: "📱", label: "Optimize for TikTok", toolId: "convert", preset: "tiktok" });
+    actions.push({ icon: "📎", label: "Preparar para processo", toolId: "convert", preset: "processo" });
   }
   if (toolId !== "subtitle") {
-    actions.push({ icon: "💬", label: "Add subtitles", toolId: "subtitle" });
+    actions.push({ icon: "💬", label: "Adicionar legenda", toolId: "subtitle" });
   }
   if (toolId !== "audiostudio") {
-    actions.push({ icon: "🎧", label: "Extract audio", toolId: "audiostudio" });
+    actions.push({ icon: "🎧", label: "Extrair áudio", toolId: "audiostudio" });
   }
   if (toolId !== "thumbnail") {
-    actions.push({ icon: "📸", label: "Create thumbnail", toolId: "thumbnail" });
+    actions.push({ icon: "📸", label: "Extrair frame", toolId: "thumbnail" });
   }
   return actions.slice(0, 4);
 };
@@ -105,7 +105,7 @@ const ResultCard = ({
           </svg>
         </motion.div>
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-white text-sm">Done! Your file is ready</p>
+          <p className="font-bold text-white text-sm">Pronto! Seu arquivo está disponível</p>
           <p className="text-green-100 text-xs truncate">{size} · {filename.split(".").pop()?.toUpperCase()}</p>
         </div>
         <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}>
@@ -118,7 +118,7 @@ const ResultCard = ({
 
         {/* GIF / image preview */}
         {preview && (
-          <motion.img src={preview} alt="preview"
+          <motion.img src={preview} alt="pré-visualização"
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
             className="w-full rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm" />
         )}
@@ -142,7 +142,7 @@ const ResultCard = ({
             <p className="text-[10px] sm:text-xs text-gray-400">{size}</p>
           </div>
           <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={share}
-            title={navigator.share ? "Share file" : "Download again"}
+            title={navigator.share ? "Compartilhar arquivo" : "Baixar novamente"}
             className="p-1.5 sm:p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600 transition-colors shrink-0">
             <AnimatePresence mode="wait">
               {shared
@@ -154,7 +154,7 @@ const ResultCard = ({
           <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={download}
             className="flex items-center gap-1.5 btn-gradient ripple-btn text-white text-xs font-bold px-3 sm:px-4 py-2 rounded-lg shadow-md shadow-blue-500/25 shrink-0">
             <Download className="w-3.5 h-3.5" />
-            <span>Download</span>
+            <span>Baixar</span>
           </motion.button>
         </div>
 
@@ -167,7 +167,7 @@ const ResultCard = ({
             className="space-y-2"
           >
             <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              ✅ Your video is ready — what do you want next?
+              ✅ Gravação pronta — o que fazer agora?
             </p>
             <div className="grid grid-cols-2 gap-2">
               {nextActions.map((action, i) => (
@@ -195,10 +195,10 @@ const ResultCard = ({
         {/* Actions */}
         <div className="grid grid-cols-2 gap-2">
           <AnimatedButton variant="outline" size="sm" onClick={onAgain} className="w-full text-xs sm:text-sm">
-            <RefreshCw className="w-3.5 h-3.5" /> Process again
+            <RefreshCw className="w-3.5 h-3.5" /> Processar novamente
           </AnimatedButton>
           <AnimatedButton variant="ghost" size="sm" onClick={onReset} className="w-full text-xs sm:text-sm">
-            Upload new file
+            Enviar novo arquivo
           </AnimatedButton>
         </div>
       </div>

@@ -23,62 +23,62 @@ interface WorkflowTemplate {
 
 const TEMPLATES: WorkflowTemplate[] = [
   {
-    id: "tiktok",
-    icon: "📱",
-    title: "TikTok Creator Pack",
-    desc: "Convert 9:16 → Compress → Add subtitles",
-    gradient: "from-pink-500 to-rose-500",
-    badge: "🔥 Most Popular",
+    id: "processo",
+    icon: "📎",
+    title: "Pacote Processo Eletrônico",
+    desc: "Converter → Compactar → Adicionar identificação",
+    gradient: "from-blue-500 to-blue-600",
+    badge: "🔥 Mais usado",
     firstTool: "convert",
-    firstPreset: "tiktok",
+    firstPreset: "processo",
     steps: [
-      { icon: "🔄", label: "Convert 9:16", toolId: "convert", preset: "tiktok" },
-      { icon: "📦", label: "Compress",     toolId: "compress" },
-      { icon: "💬", label: "Add subtitles",toolId: "subtitle" },
+      { icon: "🔄", label: "Converter", toolId: "convert", preset: "processo" },
+      { icon: "📦", label: "Compactar",  toolId: "compress" },
+      { icon: "🧩", label: "Identificar", toolId: "overlay" },
     ],
   },
   {
-    id: "youtube",
-    icon: "▶️",
-    title: "YouTube Upload Pack",
-    desc: "1080p optimize → Thumbnail → Audio cleanup",
-    gradient: "from-red-500 to-orange-500",
-    badge: "⭐ Best Quality",
+    id: "pericia",
+    icon: "🔎",
+    title: "Pacote Perícia HD",
+    desc: "Qualidade máxima → Extrair frame → Legenda",
+    gradient: "from-amber-500 to-orange-500",
+    badge: "⭐ Melhor qualidade",
     firstTool: "convert",
-    firstPreset: "youtube",
+    firstPreset: "evidencia_hd",
     steps: [
-      { icon: "▶️", label: "1080p optimize", toolId: "convert",     preset: "youtube" },
-      { icon: "📸", label: "Thumbnail",      toolId: "thumbnail" },
-      { icon: "🎵", label: "Audio cleanup",  toolId: "audiostudio" },
+      { icon: "🔎", label: "Qualidade máxima", toolId: "convert",     preset: "evidencia_hd" },
+      { icon: "📸", label: "Extrair frame",    toolId: "thumbnail" },
+      { icon: "💬", label: "Legenda",          toolId: "subtitle" },
     ],
   },
   {
-    id: "whatsapp",
+    id: "envio-rapido",
     icon: "💬",
-    title: "WhatsApp Share Pack",
-    desc: "Compress aggressively → Resize to 480p",
+    title: "Pacote Envio Rápido",
+    desc: "Compactação máxima → Redimensionar para 480p",
     gradient: "from-green-500 to-emerald-500",
-    badge: "📱 Mobile Friendly",
+    badge: "📱 WhatsApp/E-mail",
     firstTool: "compress",
     firstPreset: undefined,
     steps: [
-      { icon: "📦", label: "Compress max", toolId: "compress" },
-      { icon: "📐", label: "Resize 480p",  toolId: "resize" },
+      { icon: "📦", label: "Compactar ao máximo", toolId: "compress" },
+      { icon: "📐", label: "Redimensionar 480p",  toolId: "resize" },
     ],
   },
   {
-    id: "podcast",
-    icon: "🎙",
-    title: "Podcast Clip Pack",
-    desc: "Trim clip → Extract audio → Optimize",
+    id: "multi-camera",
+    icon: "🎥",
+    title: "Pacote Múltiplas Câmeras",
+    desc: "Juntar gravações → Cortar trecho → Otimizar",
     gradient: "from-blue-500 to-blue-600",
-    badge: "🎧 Audio Focus",
-    firstTool: "timeline",
+    badge: "🎯 Várias câmeras",
+    firstTool: "merge",
     firstPreset: undefined,
     steps: [
-      { icon: "✂️", label: "Trim clip",      toolId: "timeline" },
-      { icon: "🎧", label: "Extract audio",  toolId: "audiostudio" },
-      { icon: "⚡", label: "Auto optimize",  toolId: "autooptimize" },
+      { icon: "🔗", label: "Juntar gravações", toolId: "merge" },
+      { icon: "✂️", label: "Cortar trecho",     toolId: "timeline" },
+      { icon: "⚡", label: "Otimizar",          toolId: "autooptimize" },
     ],
   },
 ];
@@ -95,7 +95,7 @@ const WorkflowTemplates = ({ onOpen }: WorkflowTemplatesProps) => (
     className="space-y-3"
   >
     <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-      🎬 Workflow Templates — one click, full pipeline
+      🎬 Modelos de Fluxo — um clique, processo completo
     </p>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {TEMPLATES.map((t, i) => (
@@ -149,7 +149,7 @@ const WorkflowTemplates = ({ onOpen }: WorkflowTemplatesProps) => (
             "inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg text-white transition-all",
             `bg-gradient-to-r ${t.gradient}`
           )}>
-            Start workflow <ChevronRight className="w-3 h-3" />
+            Iniciar fluxo <ChevronRight className="w-3 h-3" />
           </div>
         </motion.button>
       ))}

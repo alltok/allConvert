@@ -10,6 +10,12 @@
 
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 
+// ── Shared font (written into the FFmpeg virtual FS once at load time) ────────
+// Used by every drawtext/subtitles filter — without it, libass/freetype has no
+// font to render text with and burned-in text silently fails to appear.
+export const FONT_FILE = "font.ttf";
+export const FONT_FAMILY = "DejaVu Sans";
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type RenderMode = "instant" | "balanced" | "quality";

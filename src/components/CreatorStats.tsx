@@ -1,6 +1,6 @@
 /**
- * CreatorStats — shows session stats and creator milestones.
- * Makes the product feel alive and creates retention psychology.
+ * CreatorStats — mostra estatísticas de uso da sessão atual.
+ * Ajuda o usuário a acompanhar quantas gravações já processou.
  */
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -68,30 +68,30 @@ const CreatorStats = () => {
     >
       <div className="flex items-center gap-2">
         <Trophy className="w-4 h-4 text-amber-500" />
-        <p className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Your Creator Stats</p>
+        <p className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Suas Estatísticas de Uso</p>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         <div className="text-center">
           <p className="text-lg font-black text-gray-900 dark:text-white">{total}</p>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500">Total processed</p>
+          <p className="text-[10px] text-gray-400 dark:text-gray-500">Total processado</p>
         </div>
         <div className="text-center">
           <p className="text-lg font-black text-orange-500 flex items-center justify-center gap-1">
             <Flame className="w-4 h-4" />{week}
           </p>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500">This week</p>
+          <p className="text-[10px] text-gray-400 dark:text-gray-500">Esta semana</p>
         </div>
         <div className="text-center">
           <p className="text-lg font-black text-blue-600 dark:text-blue-400">{recentWorkflows}</p>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500">Workflows used</p>
+          <p className="text-[10px] text-gray-400 dark:text-gray-500">Fluxos usados</p>
         </div>
       </div>
 
       {/* Progress to next milestone */}
       <div className="space-y-1.5">
         <div className="flex justify-between text-[10px] text-gray-400">
-          <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-blue-400" /> Next milestone: {nextMilestone} videos</span>
+          <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-blue-400" /> Próxima marca: {nextMilestone} gravações</span>
           <span>{progress}%</span>
         </div>
         <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
